@@ -47,6 +47,7 @@
 #define JSON_MESSAGE_STORE_FOLDER_DOES_NOT_EXIST -40
 #define JSON_MESSAGE_OUTPIN_NOT_AVAILABLE -41
 #define JSON_MESSAGE_ROBOT_NOT_ENABLED -42
+#define JSON_MESSAGE_RFID_NOT_ENABLED -43
 
 
 void decodeError(int errorNo, char *buffer, int bufferLength);

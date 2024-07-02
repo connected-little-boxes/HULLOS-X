@@ -52,6 +52,7 @@
 #include "otaupdate.h"
 #include "outpin.h"
 #include "robotProcess.h"
+#include "RFID.h"
 
 #endif
 
@@ -86,6 +87,7 @@ void populateProcessList()
   addProcessToAllProcessList(&hullosProcess);
   addProcessToAllProcessList(&outPinProcess);
   addProcessToAllProcessList(&robotProcess);
+  addProcessToAllProcessList(&RFIDProcess);
 #endif
 }
 
