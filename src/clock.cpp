@@ -4,6 +4,7 @@
 #include "sensors.h"
 #include "pixels.h"
 #include "controller.h"
+#include "utils.h"
 
 extern Timezone homeTimezone;
 
@@ -744,8 +745,7 @@ void addClockSensorReading(char *jsonBuffer, int jsonBufferSize)
 		// 	clockActiveReading->minute,
 		// 	clockActiveReading->second);
 
-		snprintf(jsonBuffer, jsonBufferSize, "%s,\"timestamp\":\"%s\"",
-				 jsonBuffer,
+		appendFormattedString(jsonBuffer, jsonBufferSize, ",\"timestamp\":\"%s\"",
 				 UTC.dateTime(RFC3339).c_str());
 	}
 }

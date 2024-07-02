@@ -62,8 +62,8 @@ void buildConfigJson(char *destination, int bufferSize)
 {
 	struct process *procPtr = allProcessList;
 
-	snprintf(destination, CONNECTION_MESSAGE_BUFFER_SIZE,
-			 "%s\"processes\":[", destination);
+	appendFormattedString(destination, CONNECTION_MESSAGE_BUFFER_SIZE,
+			 "\"processes\":[");
 
 	bool firstItem = true;
 
@@ -75,19 +75,19 @@ void buildConfigJson(char *destination, int bufferSize)
 			{
 				if (firstItem)
 				{
-					snprintf(destination, CONNECTION_MESSAGE_BUFFER_SIZE, "%s \"%s\"", destination, procPtr->processName);
+					appendFormattedString(destination, CONNECTION_MESSAGE_BUFFER_SIZE, " \"%s\"", procPtr->processName);
 					firstItem = false;
 				}
 				else
 				{
-					snprintf(destination, CONNECTION_MESSAGE_BUFFER_SIZE, "%s,\"%s\"", destination, procPtr->processName);
+					appendFormattedString(destination, CONNECTION_MESSAGE_BUFFER_SIZE, ",\"%s\"", procPtr->processName);
 				}
 			}
 		}
 		procPtr = procPtr->nextAllProcesses;
 	}
 
-	snprintf(destination, CONNECTION_MESSAGE_BUFFER_SIZE, "%s],\"sensors\":[", destination);
+	appendFormattedString(destination, CONNECTION_MESSAGE_BUFFER_SIZE, "],\"sensors\":[");
 
 	sensor *allSensorPtr = allSensorList;
 	firstItem = true;
@@ -97,18 +97,18 @@ void buildConfigJson(char *destination, int bufferSize)
 		{
 			if (firstItem)
 			{
-				snprintf(destination, CONNECTION_MESSAGE_BUFFER_SIZE, "%s \"%s\"", destination, allSensorPtr->sensorName);
+				appendFormattedString(destination, CONNECTION_MESSAGE_BUFFER_SIZE, " \"%s\"", allSensorPtr->sensorName);
 				firstItem = false;
 			}
 			else
 			{
-				snprintf(destination, CONNECTION_MESSAGE_BUFFER_SIZE, "%s, \"%s\"", destination, allSensorPtr->sensorName);
+				appendFormattedString(destination, CONNECTION_MESSAGE_BUFFER_SIZE, ", \"%s\"", allSensorPtr->sensorName);
 			}
 		}
 		allSensorPtr = allSensorPtr->nextAllSensors;
 	}
 
-	snprintf(destination, CONNECTION_MESSAGE_BUFFER_SIZE, "%s]", destination);
+	appendFormattedString(destination, CONNECTION_MESSAGE_BUFFER_SIZE, "]");
 }
 
 void sendRegistrationMessage()
@@ -129,7 +129,7 @@ void sendRegistrationMessage()
 
 	buildConfigJson(messageBuffer, CONNECTION_MESSAGE_BUFFER_SIZE);
 
-	snprintf(messageBuffer, CONNECTION_MESSAGE_BUFFER_SIZE, "%s}", messageBuffer);
+	appendFormattedString(messageBuffer, CONNECTION_MESSAGE_BUFFER_SIZE, "}");
 
 	publishBufferToMQTTTopic(messageBuffer, MQTT_REGISTERED_TOPIC);
 }

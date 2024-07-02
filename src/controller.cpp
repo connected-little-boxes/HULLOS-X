@@ -486,78 +486,73 @@ void appendCommandItemType(CommandItem *item, char *buffer, int bufferSize)
 	switch (item->type)
 	{
 	case textCommand:
-		snprintf(buffer, bufferSize, "%stext", buffer);
+		appendFormattedString(buffer, bufferSize, "text");
 		break;
 
 	case integerCommand:
-		snprintf(buffer, bufferSize, "%sint", buffer);
+		appendFormattedString(buffer, bufferSize, "int");
 		break;
 
 	case floatCommand:
-		snprintf(buffer, bufferSize, "%sfloat", buffer);
+		appendFormattedString(buffer, bufferSize, "float");
 		break;
 	}
 }
 
 void appendCommandDescriptionToJson(Command *command, char *buffer, int bufferSize)
 {
-	snprintf(buffer, bufferSize, "%s{\"name\":\"%s\",\"version\":\"%s\",\"desc\":\"%s\",\"items\":[",
-			 buffer, command->name, Version, command->description);
+	appendFormattedString(buffer, bufferSize, "{\"name\":\"%s\",\"version\":\"%s\",\"desc\":\"%s\",\"items\":[",
+			 command->name, Version, command->description);
 
 	for (int i = 0; i < command->noOfItems; i++)
 	{
 		if (i > 0)
 		{
-			snprintf(buffer, bufferSize, "%s,", buffer);
+			appendFormattedString(buffer, bufferSize, ",");
 		}
 		CommandItem *item = command->items[i];
 
-		snprintf(buffer, bufferSize, "%s{\"name\":\"%s\",\"optional\":%d,\"desc\":\"%s\",\"type\":\"",
-				 buffer,
+		appendFormattedString(buffer, bufferSize, "{\"name\":\"%s\",\"optional\":%d,\"desc\":\"%s\",\"type\":\"",
 				 item->name,
 				 item->setDefaultValue != noDefaultAvailable,
 				 item->description);
 		appendCommandItemType(item, buffer, bufferSize);
-		snprintf(buffer, bufferSize, "%s\"}", buffer);
+		appendFormattedString(buffer, bufferSize, "\"}");
 	}
 
-	snprintf(buffer, bufferSize, "%s]}", buffer);
+	appendFormattedString(buffer, bufferSize, "]}");
 }
 
 void appendCommandDescriptionToText(Command *command, char *buffer, int bufferSize)
 {
-	snprintf(buffer, bufferSize, "%s    %s - %s\n",
-			 buffer, command->name, command->description);
+	appendFormattedString(buffer, bufferSize, "    %s - %s\n",
+			 command->name, command->description);
 
 	for (int i = 0; i < command->noOfItems; i++)
 	{
 		CommandItem *item = command->items[i];
-		snprintf(buffer, bufferSize, "%s        %s - %s : ", buffer, item->name, item->description);
+		appendFormattedString(buffer, bufferSize, "        %s - %s : ", item->name, item->description);
 		appendCommandItemType(item, buffer, bufferSize);
 		if (item->setDefaultValue != noDefaultAvailable)
 		{
-			snprintf(buffer, bufferSize, "%s (optional)",
-					 buffer);
+			appendFormattedString(buffer, bufferSize, " (optional)");
 		}
-		snprintf(buffer, bufferSize, "%s\n", buffer);
+		appendFormattedString(buffer, bufferSize, "\n");
 		continue;
 
 		if (item->setDefaultValue == noDefaultAvailable)
 		{
-			snprintf(buffer, bufferSize, "      %s%s  - %s:",
-					 buffer,
+			appendFormattedString(buffer, bufferSize, "      %s  - %s:",
 					 item->name,
 					 item->description);
 		}
 		else
 		{
-			snprintf(buffer, bufferSize, "     %s%s* - %s:",
-					 buffer,
+			appendFormattedString(buffer, bufferSize, "     %s* - %s:",
 					 item->name,
 					 item->description);
 		}
 		appendCommandItemType(item, buffer, bufferSize);
-		snprintf(buffer, bufferSize, "%s", buffer);
 	}
 }
 
@@ -1212,7 +1207,7 @@ void createJSONfromSettings(char *processName, struct Command *command, char *de
 
 	sprintf(buffer, "{");
 
-	snprintf(buffer, bufferLength, "%s \"process\":\"%s\",\"command\":\"%s\",", buffer, processName, command->name);
+	appendFormattedString(buffer, bufferLength, " \"process\":\"%s\",\"command\":\"%s\",", processName, command->name);
 
 	for (int i = 0; i < command->noOfItems; i++)
 	{
@@ -1220,10 +1215,10 @@ void createJSONfromSettings(char *processName, struct Command *command, char *de
 
 		if (i != 0)
 		{
-			snprintf(buffer, bufferLength, "%s,", buffer);
+			appendFormattedString(buffer, bufferLength, ",");
 		}
 
-		snprintf(buffer, bufferLength, "%s \"%s\":", buffer, item->name);
+		appendFormattedString(buffer, bufferLength, " \"%s\":", item->name);
 
 		char *textPtr;
 		int val;
@@ -1233,22 +1228,22 @@ void createJSONfromSettings(char *processName, struct Command *command, char *de
 		{
 		case textCommand:
 			textPtr = (char *)(settingBase + item->commandSettingOffset);
-			snprintf(buffer, bufferLength, "%s\"%s\"", buffer, textPtr);
+			appendFormattedString(buffer, bufferLength, "\"%s\"", textPtr);
 			break;
 
 		case integerCommand:
 			val = getUnalignedInt(settingBase + item->commandSettingOffset);
-			snprintf(buffer, bufferLength, "%s%d", buffer, val);
+			appendFormattedString(buffer, bufferLength, "%d", val);
 			break;
 
 		case floatCommand:
 			floatVal = getUnalignedFloat(settingBase + item->commandSettingOffset);
-			snprintf(buffer, bufferLength, "%s%f", buffer, floatVal);
+			appendFormattedString(buffer, bufferLength, "%f", floatVal);
 			break;
 		}
 	}
 
-	snprintf(buffer, bufferLength, "%s, \"from\":\"%s\"}", buffer, mqttSettings.mqttDeviceName);
+	appendFormattedString(buffer, bufferLength, ", \"from\":\"%s\"}", mqttSettings.mqttDeviceName);
 	displayMessage("Built:%s\n", buffer);
 }
 

@@ -125,3 +125,25 @@ void display_memory_monitor( char * item)
 			currentHeap = newHeap;
 		}
 }
+
+void appendFormattedString(char * dest, int limit, const char *format, ...)
+{
+    // Use va_list to handle variable number of arguments
+    va_list args;
+    va_start(args, format);
+    
+    int availableSpace = limit - strlen(dest) - 1;
+
+    if(availableSpace <= 0){
+        return;
+    }
+
+    // Use vsnprintf to format the string
+    char buffer[availableSpace];
+    
+    vsnprintf(buffer, availableSpace, format, args);
+
+    strcat(dest,buffer);
+
+    va_end(args);
+}

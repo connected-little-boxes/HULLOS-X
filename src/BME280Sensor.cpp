@@ -12,6 +12,7 @@
 #include "controller.h"
 #include "pixels.h"
 #include "clock.h"
+#include "utils.h"
 
 struct BME280SensorSettings bme280SensorSettings;
 bool BME280firstRun;
@@ -584,8 +585,7 @@ void addBME280SensorReading(char *jsonBuffer, int jsonBufferSize)
 
 		if (ulongDiff(millis(), bme280SensoractiveReading->lastEnvqAverageMillis) < ENV_READING_LIFETIME_MSECS)
 		{
-			snprintf(jsonBuffer, jsonBufferSize, "%s,\"temp\":%.2f,\"humidity\":%.2f,\"pressure\":%.2f",
-					 jsonBuffer,
+			appendFormattedString(jsonBuffer, jsonBufferSize, ",\"temp\":%.2f,\"humidity\":%.2f,\"pressure\":%.2f",
 					 bme280SensoractiveReading->temperatureAverage,
 					 bme280SensoractiveReading->humidityAverage,
 					 bme280SensoractiveReading->pressureAverage);

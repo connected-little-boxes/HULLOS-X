@@ -237,8 +237,7 @@ void addPotSensorReading(char *jsonBuffer, int jsonBufferSize)
 
 	if (potSensor.status == SENSOR_OK)
 	{
-		snprintf(jsonBuffer, jsonBufferSize, "%s,\"pot\":\"%d\"",
-				 jsonBuffer,
+		appendFormattedString(jsonBuffer, jsonBufferSize, ",\"pot\":\"%d\"",
 				 potSensoractiveReading->counter);
 	}
 }

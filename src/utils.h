@@ -23,6 +23,7 @@ float getUnalignedDouble(unsigned char *source);
 void putUnalignedDouble(double dval, unsigned char *dest);
 void start_memory_monitor();
 void display_memory_monitor( char * item);
+void appendFormattedString(char * dest, int limit, const char *format, ...);
 
 #define ESC_KEY 0x1b
 

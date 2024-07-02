@@ -13,6 +13,7 @@
 #include "HullOS.h"
 #include "boot.h"
 #include "robotProcess.h"
+#include "utils.h"
 #include <LittleFS.h>
 
 struct ConsoleSettings consoleSettings;
@@ -264,22 +265,22 @@ void doShowRemoteCommandsText(char *commandLine)
 
 void appendSensorDescriptionToJson(sensor *s, char *buffer, int bufferSize)
 {
-	snprintf(buffer, bufferSize, "%s{\"name\":\"%s\",\"version\":\"%s\",\"triggers\":[",
-			 buffer, s->sensorName, Version);
+	appendFormattedString ( buffer, bufferSize, "{\"name\":\"%s\",\"version\":\"%s\",\"triggers\":[", 
+			s->sensorName, Version);
 
 	for (int i = 0; i < s->noOfSensorListenerFunctions; i++)
 	{
 		if (i > 0)
 		{
-			snprintf(buffer, bufferSize, "%s,", buffer);
+			appendFormattedString(buffer, bufferSize, ",");
 		}
 
 		sensorEventBinder *binder = &s->sensorListenerFunctions[i];
-		snprintf(buffer, bufferSize, "%s{\"name\":\"%s\"}", buffer,
-				 binder->listenerName);
+
+		appendFormattedString(buffer, bufferSize, "{\"name\":\"%s\"}", binder->listenerName);
 	}
 
-	snprintf(buffer, bufferSize, "%s]}", buffer);
+	appendFormattedString(buffer, bufferSize, "]}");
 }
 
 void printSensorTriggersJson(sensor *s)
@@ -300,13 +301,13 @@ void doShowSensorsJson(char *commandLine)
 
 void appendSensorDescriptionToText(sensor *s, char *buffer, int bufferSize)
 {
-	snprintf(buffer, bufferSize, "%sSensor name %s\n",
-			 buffer, s->sensorName);
+	appendFormattedString(buffer, bufferSize, "Sensor name %s\n",
+			 s->sensorName);
 
 	for (int i = 0; i < s->noOfSensorListenerFunctions; i++)
 	{
 		sensorEventBinder *binder = &s->sensorListenerFunctions[i];
-		snprintf(buffer, bufferSize, "%s   trigger:%s\n", buffer,
+		appendFormattedString(buffer, bufferSize, "%s   trigger:%s\n", 
 				 binder->listenerName);
 	}
 }

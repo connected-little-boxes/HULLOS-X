@@ -5,6 +5,7 @@
 #include "sensors.h"
 #include "mqtt.h"
 #include "pixels.h"
+#include "utils.h"
 
 struct ButtonSensorSettings buttonSensorSettings;
 
@@ -285,8 +286,7 @@ void addButtonSensorReading(char *jsonBuffer, int jsonBufferSize)
 
 	if (buttonSensor.status == SENSOR_OK)
 	{
-		snprintf(jsonBuffer, jsonBufferSize, "%s,\"button\":\"%d\"",
-				 jsonBuffer,
+		appendFormattedString(jsonBuffer, jsonBufferSize, ",\"button\":\"%d\"",
 				 buttonSensoractiveReading->pressed);
 	}
 }

@@ -243,8 +243,7 @@ void addPirSensorReading(char *jsonBuffer, int jsonBufferSize)
 
 	if (pirSensor.status == SENSOR_OK)
 	{
-		snprintf(jsonBuffer, jsonBufferSize, "%s,\"pir\":\"%d\"",
-				 jsonBuffer,
+		appendFormattedString(jsonBuffer, jsonBufferSize, ",\"pir\":\"%d\"",
 				 pirSensoractiveReading->triggered);
 	}
 }
