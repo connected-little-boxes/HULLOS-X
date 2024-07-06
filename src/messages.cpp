@@ -59,7 +59,7 @@ void displayMessage(const char *format, ...)
     int len = vsnprintf(buffer, sizeof(buffer), format, args);
 
     // Check if vsnprintf was successful
-    if (len >= 0 && len < sizeof(buffer))
+    if (len >= 0 && len < (int) sizeof(buffer))
     {
         // Print the formatted string
         Serial.print(buffer);
@@ -80,7 +80,7 @@ void alwaysDisplayMessage(const char *format, ...)
     int len = vsnprintf(buffer, sizeof(buffer), format, args);
 
     // Check if vsnprintf was successful
-    if (len >= 0 && len < sizeof(buffer))
+    if (len >= 0 && len < (int) sizeof(buffer))
     {
         // Print the formatted string
         Serial.print(buffer);

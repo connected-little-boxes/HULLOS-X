@@ -306,6 +306,8 @@ void robotStatusMessage(char *buffer, int bufferLength)
     }
 }
 
+#ifdef ROBOT
+
 struct process robotProcess = {
     "robot",
     initRobotProcess,
@@ -328,3 +330,5 @@ struct process robotProcess = {
     NULL, // no command options
     0     // no command options
 };
+
+#endif

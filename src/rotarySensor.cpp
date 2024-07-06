@@ -141,7 +141,7 @@ void readROTARYSensor(struct rotarySensorReading *rotarySensoractiveReading)
 
 #define MIN_PULSE_WIDTH_MILLIS 1
 
-void ICACHE_RAM_ATTR clockChange()
+void IRAM_ATTR clockChange()
 {
 	// Fired when the clock input changes state
 	// Read the current state of CLK
@@ -341,8 +341,7 @@ void addRotarySensorReading(char *jsonBuffer, int jsonBufferSize)
 
 	if (rotarySensor.status == SENSOR_OK)
 	{
-		snprintf(jsonBuffer, jsonBufferSize, "%s,\"rotary\":\"%d\"",
-				 jsonBuffer,
+		appendFormattedString(jsonBuffer, jsonBufferSize, ",\"rotary\":\"%d\"",
 				 rotarySensoractiveReading->counter);
 	}
 }

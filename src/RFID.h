@@ -1,37 +1,36 @@
 #pragma once
 
-#define RFID_CONNECTED 3003
-#define RFID_OFF 3001
-#define RFID_ON 3002
-
-#define RFID_MESSAGE_LENGTH 60
-#define RFID_MESSAGE_COMMAND_LENGTH 10
-
-#define RFID_TOPIC "RFID"
+#define RFID_NOT_FITTED -1
+#define RFID_CONNECTED 1
 
 #define SS_PIN D8
 #define RST_PIN D2
-#define INT_PIN D0
+#define INT_PIN D1
 
-struct RFIDSettings
+#define RFIDSENSOR_SEND_ON_CARD_SCANNED 1
+
+
+struct RFIDSensorSettings
 {
-    bool RFIDEnabled;
+    bool RFIDFitted;
     int millisBetweenUpdates;
 };
 
-void sendMessageToRFID(char *messageText);
+#define RFID_LENGTH 20
 
-void RFIDOff();
-
-void RFIDOn();
-
-extern struct RFIDSettings RFIDSettings;
-
-extern struct SettingItemCollection RFIDSettingItems;
-
-extern struct process RFIDProcess;
+struct RFIDSensorReading {
+    int counter;
+    char idString[RFID_LENGTH];
+};
 
 void pollRFID();
 void testRFID();
+
+extern struct RFIDSensorSettings RFIDSensorSettings;
+
+extern struct SettingItemCollection RFIDSettingItems;
+
+extern struct sensor RFIDSensor;
+
 
 

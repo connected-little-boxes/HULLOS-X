@@ -908,6 +908,7 @@ void MAX7219MessagesStatusMessage(char *buffer, int bufferLength)
     }
 }
 
+#ifdef MAX7219
 struct process max7219MessagesProcess = {
     "max7219",
     initMAX7219Messages,
@@ -930,3 +931,4 @@ struct process max7219MessagesProcess = {
     NULL, // no command options
     0     // no command options
 };
+#endif

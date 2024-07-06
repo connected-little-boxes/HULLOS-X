@@ -302,7 +302,7 @@ void createSensorJson(char *name, char *buffer, int bufferLength)
 		activeSensorPtr = activeSensorPtr->nextActiveSensor;
 	}
 
-	snprintf(buffer, bufferLength, "%s}", buffer);
+	appendFormattedString(buffer, bufferLength, "}");
 }
 
 void displaySensorStatus()

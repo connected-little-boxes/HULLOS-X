@@ -297,7 +297,7 @@ int doRegistrationGetSetupCommand(char *destination, unsigned char *settingBase)
 
 	buildConfigJson(messageBuffer, CONNECTION_MESSAGE_BUFFER_SIZE);
 
-	snprintf(messageBuffer, CONNECTION_MESSAGE_BUFFER_SIZE, "%s}", messageBuffer);
+	appendFormattedString(messageBuffer, CONNECTION_MESSAGE_BUFFER_SIZE, "}");
 
 	displayMessage(messageBuffer);
 
@@ -363,7 +363,7 @@ int doRegistrationGetSettingsCommand(char *destination, unsigned char *settingBa
 
 	appendSettingCollectionJson(settingCollection, messageBuffer, CONNECTION_MESSAGE_BUFFER_SIZE);
 
-	snprintf(messageBuffer, CONNECTION_MESSAGE_BUFFER_SIZE, "%s}", messageBuffer);
+	appendFormattedString(messageBuffer, CONNECTION_MESSAGE_BUFFER_SIZE, "%}");
 
 	displayMessage(messageBuffer);
 

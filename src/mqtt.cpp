@@ -346,7 +346,10 @@ void restartMQTT()
 
 	char topicBuffer [MQTT_TOPIC_PREFIX_LENGTH+MQTT_TOPIC_LENGTH];
 
-	snprintf(topicBuffer,MQTT_TOPIC_PREFIX_LENGTH+MQTT_TOPIC_LENGTH,"%s/%s/%s", mqttSettings.mqttTopicPrefix,mqttSettings.mqttSubscribeTopic,mqttSettings.mqttDeviceName);
+	snprintf(topicBuffer,MQTT_TOPIC_PREFIX_LENGTH+MQTT_TOPIC_LENGTH,"%s/%s/%s", 
+		mqttSettings.mqttTopicPrefix,
+		mqttSettings.mqttSubscribeTopic,
+		mqttSettings.mqttDeviceName);
 
 	displayMessage("Subscribing to:%s\n", topicBuffer);
 

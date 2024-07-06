@@ -393,6 +393,7 @@ void ServoStatusMessage(char *buffer, int bufferLength)
         snprintf(buffer, bufferLength, "Servo off");
 }
 
+#ifdef SERVO
 struct process ServoProcess = {
     "servo",
     initServo,
@@ -413,3 +414,4 @@ struct process ServoProcess = {
     NULL,
     NULL
     };
+#endif

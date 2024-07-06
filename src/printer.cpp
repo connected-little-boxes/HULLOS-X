@@ -285,6 +285,8 @@ void printerStatusMessage(char *buffer, int bufferLength)
     }
 }
 
+#ifdef PRINTER
+
 struct process printerProcess = {
     "printer",
     initPrinter,
@@ -307,3 +309,5 @@ struct process printerProcess = {
     NULL, // no command options
     0     // no command options
 };
+
+#endif

@@ -141,7 +141,6 @@ void updatePOTSensor()
 
 			resultValue = 1.0 - resultValue;
 			
-			putUnalignedFloat(resultValue, (unsigned char *) &pos->config->optionBuffer);
 
 			char *messageBuffer = (char *)pos->config->optionBuffer + MESSAGE_START_POSITION;
 			snprintf(messageBuffer, MAX_MESSAGE_LENGTH, "%.2f", resultValue);

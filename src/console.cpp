@@ -15,6 +15,7 @@
 #include "robotProcess.h"
 #include "utils.h"
 #include <LittleFS.h>
+#include "RFID.h"
 
 struct ConsoleSettings consoleSettings;
 
@@ -116,12 +117,12 @@ void doDumpStatus(char *commandLine)
 
 #if defined(ARDUINO_ARCH_ESP8266)
 
-	alwaysDisplayMessage("%ul",ESP.getFreeHeap());
+	alwaysDisplayMessage("%u",ESP.getFreeHeap());
 
 #endif
 
 #if defined(ARDUINO_ARCH_ESP32)
-	alwaysDisplayMessage("%ul",ESP.getFreeHeap());
+	alwaysDisplayMessage("%u",ESP.getFreeHeap());
 #endif
 
 }
@@ -172,6 +173,10 @@ void doDumpListeners(char *commandline)
 {
 	alwaysDisplayMessage("\nSensor Listeners\n");
 	printControllerListeners();
+}
+
+void doTestRFIDSensor(char *commandline){
+	pollRFID();
 }
 
 void printCommandsJson(process *p)
@@ -592,6 +597,7 @@ struct consoleCommand userCommands[] =
 		{"otaupdate", "start an over-the-air firmware update", doOTAUpdate},
 		{"pirtest", "test the PIR sensor", doTestPIRSensor},
 		{"pottest", "test the pot sensor", doTestPotSensor},
+		{"rfidtest", "test the RFID sensor", doTestRFIDSensor},
 		{"rotarytest", "test the rotary sensor", doTestRotarySensor},
 		{"restart", "restart the device", doRestart},
 		{"save", "save all the setting values", doSaveSettings},
@@ -779,9 +785,11 @@ void checkSerialBuffer()
 {
 	// console is disabled when the robot is connected
 
+#ifdef ROBOT
 	if(robotProcess.status == ROBOT_CONNECTED){
 		return;
 	}
+#endif
 
 	while (Serial.available())
 	{

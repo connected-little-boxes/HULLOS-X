@@ -72,6 +72,7 @@ void populateProcessList()
   addProcessToAllProcessList(&RegistrationProcess);
   addProcessToAllProcessList(&robotProcess);
 #else
+// Add the core processes
   addProcessToAllProcessList(&pixelProcess);
   addProcessToAllProcessList(&statusLedProcess);
   addProcessToAllProcessList(&inputSwitchProcess);
@@ -80,14 +81,26 @@ void populateProcessList()
   addProcessToAllProcessList(&WiFiProcessDescriptor);
   addProcessToAllProcessList(&MQTTProcessDescriptor);
   addProcessToAllProcessList(&controllerProcess);
-  addProcessToAllProcessList(&ServoProcess);
   addProcessToAllProcessList(&RegistrationProcess);
+// Add the options
+#ifdef SERVO
+  addProcessToAllProcessList(&ServoProcess);
+#endif
+#ifdef MAX7219
   addProcessToAllProcessList(&max7219MessagesProcess);
+#endif
+#ifdef PRINTER
   addProcessToAllProcessList(&printerProcess);
+#endif
+#ifdef HULLOS
   addProcessToAllProcessList(&hullosProcess);
+#endif
+#ifdef OUTPIN
   addProcessToAllProcessList(&outPinProcess);
+#endif
+#ifdef ROBOT
   addProcessToAllProcessList(&robotProcess);
-  addProcessToAllProcessList(&RFIDProcess);
+#endif
 #endif
 }
 
@@ -109,6 +122,8 @@ void populateSensorList()
   addSensorToActiveSensorsList(&potSensor);
   addSensorToAllSensorsList(&bme280Sensor);
   addSensorToActiveSensorsList(&bme280Sensor);
+  addSensorToAllSensorsList(&RFIDSensor);
+  addSensorToActiveSensorsList(&RFIDSensor);
 #endif
 }
 

@@ -659,48 +659,42 @@ void appendSettingJSON(SettingItem *item, char *jsonBuffer, int bufferLength)
 
 	char loraKeyBuffer[LORA_KEY_LENGTH * 2 + 1];
 
-	snprintf(jsonBuffer, bufferLength,
-			 "%s\"%s\":",
-			 jsonBuffer,
+	appendFormattedString(jsonBuffer, bufferLength,
+			 "\"%s\":",
 			 item->formName);
 
 	switch (item->settingType)
 	{
 
 	case text:
-		snprintf(jsonBuffer, bufferLength,
-				 "%s\"%s\"",
-				 jsonBuffer,
+		appendFormattedString(jsonBuffer, bufferLength,
+				 "\"%s\"",
 				 (char *)item->value);
 		break;
 
 	case password:
-		snprintf(jsonBuffer, bufferLength,
-				 "%s\"******\"",
-				 jsonBuffer);
+		appendFormattedString(jsonBuffer, bufferLength,
+				 "\"******\"");
 		break;
 
 	case integerValue:
 		intValuePointer = (int *)item->value;
-		snprintf(jsonBuffer, bufferLength,
-				 "%s%d",
-				 jsonBuffer,
+		appendFormattedString(jsonBuffer, bufferLength,
+				 "%d",
 				 *intValuePointer);
 		break;
 
 	case doubleValue:
 		doubleValuePointer = (double *)item->value;
-		snprintf(jsonBuffer, bufferLength,
-				 "%s%lf",
-				 jsonBuffer,
+		appendFormattedString(jsonBuffer, bufferLength,
+				 "%lf",
 				 *doubleValuePointer);
 		break;
 
 	case floatValue:
 		floatValuePointer = (float *)item->value;
-		snprintf(jsonBuffer, bufferLength,
-				 "%s%f",
-				 jsonBuffer,
+		appendFormattedString(jsonBuffer, bufferLength,
+				 "%f",
 				 *floatValuePointer);
 		break;
 
@@ -708,39 +702,34 @@ void appendSettingJSON(SettingItem *item, char *jsonBuffer, int bufferLength)
 		boolValuePointer = (boolean *)item->value;
 		if (*boolValuePointer)
 		{
-			snprintf(jsonBuffer, bufferLength,
-					 "%syes",
-					 jsonBuffer);
+			appendFormattedString(jsonBuffer, bufferLength,
+					 "yes");
 		}
 		else
 		{
-			snprintf(jsonBuffer, bufferLength,
-					 "%sno",
-					 jsonBuffer);
+			appendFormattedString(jsonBuffer, bufferLength,
+					 "no");
 		}
 		break;
 
 	case loraKey:
 		dumpHexString(loraKeyBuffer, (uint8_t *)item->value, LORA_KEY_LENGTH);
-		snprintf(jsonBuffer, bufferLength,
-				 "%s\"%s\"",
-				 jsonBuffer,
+		appendFormattedString(jsonBuffer, bufferLength,
+				 "\"%s\"",
 				 loraKeyBuffer);
 		break;
 
 	case loraID:
 		loraIDValuePointer = (uint32_t *)item->value;
 		dumpUnsignedLong(loraKeyBuffer, *loraIDValuePointer);
-		snprintf(jsonBuffer, bufferLength,
-				 "%s\"%s\"",
-				 jsonBuffer,
+		appendFormattedString(jsonBuffer, bufferLength,
+				 "\"%s\"",
 				 loraKeyBuffer);
 		break;
 
 	default:
-		snprintf(jsonBuffer, bufferLength,
-				 "%s\"******Invalid setting type\"",
-				 jsonBuffer);
+		appendFormattedString(jsonBuffer, bufferLength,
+				 "\"******Invalid setting type\"");
 	}
 }
 
@@ -768,18 +757,18 @@ void PrintSettingCollection(SettingItemCollection *settingCollection)
 
 void appendSettingCollectionJson(SettingItemCollection *settings, char *buffer, int bufferLength)
 {
-	snprintf(buffer, bufferLength, "%s[", buffer);
+	appendFormattedString(buffer, bufferLength, "[");
 
 	for (int i = 0; i < settings->noOfSettings; i++)
 	{
 		if (i > 0)
 		{
-			snprintf(buffer, bufferLength, "%s,", buffer);
+			appendFormattedString(buffer, bufferLength, ",");
 		}
 		appendSettingJSON(settings->settings[i], buffer, bufferLength);
 	}
 
-	snprintf(buffer, bufferLength, "%s]", buffer);
+	appendFormattedString(buffer, bufferLength, "]");
 }
 
 // This is using a global value to feed into a function. So sue me.

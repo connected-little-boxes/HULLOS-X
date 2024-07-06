@@ -127,6 +127,8 @@ void hullosStatusMessage(char *buffer, int bufferLength)
     }
 }
 
+#ifdef HULLOS
+
 struct process hullosProcess = {
     "hullos",
     initHullOS,
@@ -149,3 +151,4 @@ struct process hullosProcess = {
     NULL, // no command options
     0     // no command options
 };
+#endif
