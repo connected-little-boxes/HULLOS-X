@@ -110,16 +110,24 @@ void populateSensorList()
   addSensorToAllSensorsList(&clockSensor);
   addSensorToActiveSensorsList(&clockSensor);
 #else
+#ifdef PIR
   addSensorToAllSensorsList(&pirSensor);
   addSensorToActiveSensorsList(&pirSensor);
+#endif
+#ifdef BUTTON
   addSensorToAllSensorsList(&buttonSensor);
   addSensorToActiveSensorsList(&buttonSensor);
+#endif
   addSensorToAllSensorsList(&clockSensor);
   addSensorToActiveSensorsList(&clockSensor);
+#ifdef ROTARY_SENSOR
   addSensorToAllSensorsList(&rotarySensor);
   addSensorToActiveSensorsList(&rotarySensor);
+#endif
+#ifdef POT_SENSOR
   addSensorToAllSensorsList(&potSensor);
   addSensorToActiveSensorsList(&potSensor);
+#endif
   addSensorToAllSensorsList(&bme280Sensor);
   addSensorToActiveSensorsList(&bme280Sensor);
   addSensorToAllSensorsList(&RFIDSensor);

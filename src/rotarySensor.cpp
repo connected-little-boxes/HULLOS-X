@@ -368,6 +368,8 @@ void rotarySensorStatusMessage(char *buffer, int bufferLength)
 	}
 }
 
+#ifdef ROTARY_SENSOR
+
 struct sensor rotarySensor = {
 	"rotary",
 	0, // millis at last reading
@@ -391,3 +393,4 @@ struct sensor rotarySensor = {
 	NULL, // message listeners
 	ROTARYSensorListenerFunctions,
 	sizeof(ROTARYSensorListenerFunctions) / sizeof(struct sensorEventBinder)};
+#endif

@@ -1,3 +1,6 @@
+#ifdef PIR
+
+
 #include "pirSensor.h"
 #include "debug.h"
 #include "sensors.h"
@@ -304,3 +307,5 @@ struct sensor pirSensor = {
 	NULL, // message listeners
 	PIRSensorListenerFunctions,
 	sizeof(PIRSensorListenerFunctions) / sizeof(struct sensorEventBinder)};
+
+#endif

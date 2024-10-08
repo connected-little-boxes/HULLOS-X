@@ -1,3 +1,5 @@
+#ifdef POT_SENSOR
+
 #include "potSensor.h"
 #include "debug.h"
 #include "sensors.h"
@@ -289,3 +291,5 @@ struct sensor potSensor = {
 	NULL, // message listeners
 	POTSensorListenerFunctions,
 	sizeof(POTSensorListenerFunctions) / sizeof(struct sensorEventBinder)};
+
+#endif

@@ -149,25 +149,33 @@ void doSaveSettings(char *commandline)
 	alwaysDisplayMessage("\nSettings saved");
 }
 
+#ifdef BUTTON
 void doTestButtonSensor(char *commandline)
 {
 	buttonSensorTest();
 }
+#endif
 
+#ifdef PIR
 void doTestPIRSensor(char *commandline)
 {
 	pirSensorTest();
 }
+#endif
 
+#ifdef ROTARY_SENSOR
 void doTestRotarySensor(char *commandline)
 {
 	rotarySensorTest();
 }
+#endif
 
+#ifdef POT_SENSOR
 void doTestPotSensor(char *commandline)
 {
 	potSensorTest();
 }
+#endif
 
 void doDumpListeners(char *commandline)
 {
@@ -312,7 +320,7 @@ void appendSensorDescriptionToText(sensor *s, char *buffer, int bufferSize)
 	for (int i = 0; i < s->noOfSensorListenerFunctions; i++)
 	{
 		sensorEventBinder *binder = &s->sensorListenerFunctions[i];
-		appendFormattedString(buffer, bufferSize, "%s   trigger:%s\n", 
+		appendFormattedString(buffer, bufferSize, "   trigger:%s\n", 
 				 binder->listenerName);
 	}
 }
@@ -330,7 +338,6 @@ void printSensorTriggersText(sensor *s)
 
 void doShowSensorsText(char *commandLine)
 {
-;
 	iterateThroughSensors(printSensorTriggersText);
 }
 
@@ -580,7 +587,9 @@ void doDeleteCommand(char *commandLine)
 
 struct consoleCommand userCommands[] =
 	{
+#ifdef BUTTON
 		{"buttontest", "test the button sensor", doTestButtonSensor},
+#endif
 		{"clearalllisteners", "clear all the command listeners", doClearAllListeners},
 		{"clear", "clear all settings and restart the device", doClear},
 		{"clearsensorlisteners", "clear the command listeners for a sensor", doClearSensorListeners},
@@ -595,10 +604,16 @@ struct consoleCommand userCommands[] =
 		{"listeners", "list the command listeners", doDumpListeners},
 		{"help", "show all the commands", doHelp},
 		{"otaupdate", "start an over-the-air firmware update", doOTAUpdate},
+#ifdef PIR
 		{"pirtest", "test the PIR sensor", doTestPIRSensor},
+#endif
+#ifdef POT_SENSOR
 		{"pottest", "test the pot sensor", doTestPotSensor},
+#endif
 		{"rfidtest", "test the RFID sensor", doTestRFIDSensor},
+#ifdef ROTARY_SENSOR
 		{"rotarytest", "test the rotary sensor", doTestRotarySensor},
+#endif
 		{"restart", "restart the device", doRestart},
 		{"save", "save all the setting values", doSaveSettings},
 		{"sensors", "list all the sensor triggers", doShowSensorsText},
