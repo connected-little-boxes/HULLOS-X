@@ -1,5 +1,19 @@
 {
     "files.associations": {
         "set": "cpp"
-    }
+    },
+    "cSpell.words": [
+        "adafruit",
+        "bblanchon",
+        "cmsis",
+        "earlephilhower",
+        "knolleary",
+        "madhephaestus",
+        "majicdesigns",
+        "MFRC",
+        "miguelbalboa",
+        "RFID",
+        "RFIDSENSOR",
+        "ropg"
+    ]
 }

@@ -8,7 +8,8 @@
 #define INT_PIN D1
 
 #define RFIDSENSOR_SEND_ON_CARD_SCANNED 1
-
+#define RFID_MESSAGE_BUFFER_SIZE 80
+#define RFID_MESSAGE_TOPIC "rfid"
 
 struct RFIDSensorSettings
 {

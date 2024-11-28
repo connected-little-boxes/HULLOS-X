@@ -8,7 +8,9 @@
 #include "errors.h"
 #include "clock.h"
 #include "console.h"
+#include "connectwifi.h"
 #include "statusled.h"
+#include "settings.h"
 #include "console.h"
 #include "controller.h"
 #include <SPI.h>
@@ -23,8 +25,6 @@
 #endif
 
 #include "RFID.h"
-
-
 
 struct RFIDSensorSettings RFIDSensorSettings;
 
@@ -115,9 +115,7 @@ volatile uint8_t reg;
 void IRAM_ATTR readCard()
 {
     bNewInt = true;
-    reg = mfrc522->PCD_ReadRegister(MFRC522::Status1Reg);    
-    Serial.printf("card ahoy 0x%X\n", reg);
-
+    reg = mfrc522->PCD_ReadRegister(MFRC522::Status1Reg);
 }
 
 void activateRec()
@@ -146,7 +144,7 @@ uint8_t oldError = 0;
 
 void updateRec()
 {
-        activateRec();
+    activateRec();
 }
 
 void clearInt()
@@ -154,7 +152,7 @@ void clearInt()
     mfrc522->PCD_WriteRegister(mfrc522->ComIrqReg, 0x7F);
 }
 
-void consumeRFIDJsonResult (char *resultText)
+void consumeRFIDJsonResult(char *resultText)
 {
     Serial.printf("     %s\n", resultText);
 }
@@ -162,74 +160,123 @@ void consumeRFIDJsonResult (char *resultText)
 #define CARD_ID_LENGTH 9
 #define NO_OF_CARDS 200
 
-char seenCards [200] [9];
+char seenCards[200][9];
 
-#define RFID_LIGHT_TIMEOUT_MILLIS 3000
+#define RFID_LIGHT_TIMEOUT_MILLIS 1000
 
 unsigned long rfidLightStart = 0;
 
 void clearCards()
 {
-    Serial.println("Clearing cards\n");
-
-    for(int cardNo=0;cardNo<NO_OF_CARDS;cardNo++){
-        seenCards[cardNo][0]=0;
+    if (MQTTProcessDescriptor.status == MQTT_OK)
+    {
+        // send a message to indicate we have a card
     }
+    else
+    {
+        Serial.println("Clearing cards\n");
 
+        for (int cardNo = 0; cardNo < NO_OF_CARDS; cardNo++)
+        {
+            seenCards[cardNo][0] = 0;
+        }
+    }
 }
 
-void storeID(char * id)
+void storeID(char *id)
 {
     Serial.printf("Storing id: %s\n", id);
-        for(int cardNo=0;cardNo<NO_OF_CARDS;cardNo++){
-            if(seenCards[cardNo][0]==0){
-                strcpy(seenCards[cardNo],id);
-                return;
-            }
+    for (int cardNo = 0; cardNo < NO_OF_CARDS; cardNo++)
+    {
+        if (seenCards[cardNo][0] == 0)
+        {
+            strcpy(seenCards[cardNo], id);
+            return;
+        }
     }
     Serial.println("No room to store card\n");
 }
 
-
-bool seenCardBefore(char * id){
+bool seenCardBefore(char *id)
+{
     Serial.printf("Checking id: %s\n", id);
-    for(int cardNo=0;cardNo<NO_OF_CARDS;cardNo++){
-        if(seenCards[cardNo][0]==0){
+    for (int cardNo = 0; cardNo < NO_OF_CARDS; cardNo++)
+    {
+        if (seenCards[cardNo][0] == 0)
+        {
             break;
         }
-        Serial.printf("    Testing: %s\n", seenCards[cardNo]);
-        if(strcasecmp(id, seenCards[cardNo])==0){
+        //        Serial.printf("    Testing: %s\n", seenCards[cardNo]);
+        if (strcasecmp(id, seenCards[cardNo]) == 0)
+        {
             return true;
         }
     }
     return false;
 }
 
-void checkRFIDCard(char * id)
+void checkRFIDCard(char *id)
 {
-    rfidLightStart = millis();
+    if (MQTTProcessDescriptor.status == MQTT_OK)
+    {
+        char messageBuffer[RFID_MESSAGE_BUFFER_SIZE];
+        char deviceNameBuffer[DEVICE_NAME_LENGTH];
+        PrintSystemDetails(deviceNameBuffer, DEVICE_NAME_LENGTH);
 
-    if(strcasecmp("734addf5",id)==0){
-        act_onJson_message("{\"process\":\"pixels\",\"command\":\"setnamedcolour\",\"colourname\":\"white\"}", consumeRFIDJsonResult);
-        clearCards();
-        return;
-    }
+        // send a message to indicate we have a card
+        snprintf(messageBuffer, RFID_MESSAGE_BUFFER_SIZE,
+                 "{\"device\":\"%s\",\"cardID\":\"%s\",\"type\":\"%s\"}",
+                 deviceNameBuffer,
+                 id,
+                 "drink");
 
-    if (seenCardBefore(id)){
-        act_onJson_message("{\"process\":\"pixels\",\"command\":\"setnamedcolour\",\"colourname\":\"red\"}", consumeRFIDJsonResult);
+        Serial.printf("Sending rfid: %s\n", messageBuffer);
+        
+        publishBufferToMQTTTopic(messageBuffer, RFID_MESSAGE_TOPIC);
+
+        rfidLightStart = millis();
+
     }
-    else{
-        act_onJson_message("{\"process\":\"pixels\",\"command\":\"setnamedcolour\",\"colourname\":\"green\"}", consumeRFIDJsonResult);
-        storeID(id);
+    else
+    {
+        // keep a counter array
+
+        rfidLightStart = millis();
+
+        if (strcasecmp("9316a0f5", id) == 0)
+        {
+            act_onJson_message("{\"process\":\"pixels\",\"command\":\"setnamedcolour\",\"colourname\":\"white\"}", consumeRFIDJsonResult);
+            clearCards();
+            return;
+        }
+
+        if (seenCardBefore(id))
+        {
+            act_onJson_message("{\"process\":\"pixels\",\"command\":\"setnamedcolour\",\"colourname\":\"red\"}", consumeRFIDJsonResult);
+        }
+        else
+        {
+            act_onJson_message("{\"process\":\"pixels\",\"command\":\"setnamedcolour\",\"colourname\":\"green\"}", consumeRFIDJsonResult);
+            storeID(id);
+        }
     }
 }
 
-void updateRFIDLight(){
-    if(rfidLightStart!= 0){
-        if (ulongDiff(millis(), rfidLightStart) > RFID_LIGHT_TIMEOUT_MILLIS)
+void updateRFIDLight()
+{
+    if (MQTTProcessDescriptor.status == MQTT_OK)
+    {
+        // send a message to indicate we have a card
+    }
+    else
+    {
+        if (rfidLightStart != 0)
         {
-            act_onJson_message("{\"process\":\"pixels\",\"command\":\"pattern\",\"pattern\":\"walking\",\"colourmask\":\"RGBY\"}", consumeRFIDJsonResult);
-            rfidLightStart = 0;
+            if (ulongDiff(millis(), rfidLightStart) > RFID_LIGHT_TIMEOUT_MILLIS)
+            {
+                act_onJson_message("{\"process\":\"pixels\",\"command\":\"pattern\",\"pattern\":\"walking\",\"colourmask\":\"RGBY\"}", consumeRFIDJsonResult);
+                rfidLightStart = 0;
+            }
         }
     }
 }
@@ -389,9 +436,9 @@ void RFIDSensorStatusMessage(char *buffer, int bufferLength)
     switch (RFIDSensor.status)
     {
     case RFID_CONNECTED:
-        Status1Reg  = mfrc522->PCD_ReadRegister(MFRC522::Status1Reg);    
-        Status2Reg  = mfrc522->PCD_ReadRegister(MFRC522::Status2Reg);   
-        snprintf(buffer, bufferLength, "RFID connected new value flag %d Status: 0x%X 0x%X", bNewInt,Status1Reg,Status2Reg);
+        Status1Reg = mfrc522->PCD_ReadRegister(MFRC522::Status1Reg);
+        Status2Reg = mfrc522->PCD_ReadRegister(MFRC522::Status2Reg);
+        snprintf(buffer, bufferLength, "RFID connected new value flag %d Status: 0x%X 0x%X", bNewInt, Status1Reg, Status2Reg);
         break;
     case RFID_NOT_FITTED:
         snprintf(buffer, bufferLength, "RFID not fitted");
