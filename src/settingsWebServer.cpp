@@ -1,3 +1,5 @@
+#if defined(SETTINGS_WEB_SERVER)
+
 #include <Arduino.h>
 #include <strings.h>
 #include "utils.h"
@@ -619,3 +621,5 @@ void startHostingConfigWebsite(bool timeout)
 #endif
   }
 }
+
+#endif

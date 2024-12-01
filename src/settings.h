@@ -35,7 +35,7 @@ extern File loadFile;
 #define ZPH01_SENSOR 2
 #define PMS5003_SENSOR 3
 
-#define DEVICE_NAME_LENGTH 20
+#define DEVICE_NAME_LENGTH 30
 
 #define WIFI_SSID_LENGTH 30
 #define WIFI_PASSWORD_LENGTH 30
@@ -96,7 +96,15 @@ enum SettingsSetupStatus{
 	SETTINGS_FILE_SYSTEM_FAIL
 };
 
+enum SettingsStoreStatus{
+	SETTING_STATUS_OK,
+	SETTING_STATUS_FILE_SYSTEM_FAILED,
+	SETTINGS_STATUS_JUST_BOOTED
+};
+
 SettingsSetupStatus setupSettings();
+
+extern SettingsStoreStatus settingsStoreStatus;
 
 void PrintSystemDetails(char * buffer, int length);
 void dumpHexString(char *dest, uint8_t *pos, int length);
@@ -108,7 +116,6 @@ void sendSettingItemToJSONString(struct SettingItem *item, char *buffer, int buf
 void appendSettingCollectionJson(SettingItemCollection *settings, char * messageBuffer, int CONNECTION_MESSAGE_BUFFER_SIZE);
 
 void appendSettingJSON(SettingItem *item, char *jsonBuffer, int bufferLength);
-
 
 void setEmptyString(void *dest);
 

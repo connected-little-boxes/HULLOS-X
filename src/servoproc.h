@@ -1,4 +1,7 @@
+
 #pragma once
+
+#if defined(PROCESS_SERVO)
 
 #define SERVO_OK 900
 #define SERVO_STOPPED 901
@@ -47,3 +50,4 @@ struct ServoCommandItems
 extern struct ServoCommandItems servoCommandItems;
 
 extern struct process ServoProcess;
+#endif

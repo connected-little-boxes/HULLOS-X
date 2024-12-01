@@ -368,7 +368,7 @@ void rotarySensorStatusMessage(char *buffer, int bufferLength)
 	}
 }
 
-#ifdef ROTARY_SENSOR
+#ifdef SENSOR_ROTARY
 
 struct sensor rotarySensor = {
 	"rotary",

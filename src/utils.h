@@ -40,7 +40,6 @@ void appendFormattedString(char * dest, int limit, const char *format, ...);
 #include <WebServer.h>
 //#include <DNSServer.h>
 
-#define PROC_ID (unsigned long)ESP.getEfuseMac()
 #define PROC_NAME "ESP32"
 
 #endif
@@ -56,7 +55,6 @@ void appendFormattedString(char * dest, int limit, const char *format, ...);
 #include <ESP8266WebServer.h>
 #include <DNSServer.h>
 
-#define PROC_ID (unsigned long)ESP.getChipId()
 #define PROC_NAME "ESP8266"
 
 #ifndef LED_BUILTIN
@@ -65,13 +63,19 @@ void appendFormattedString(char * dest, int limit, const char *format, ...);
 
 #endif
 
-#if defined(ARDUINO_ARCH_PICO)
+#if defined(PICO)
 
 #include <Arduino.h>
 #include "WiFi.h"
 #define PROC_NAME "PICO"
 #include "pico/stdlib.h"
 #include "pico/unique_id.h"
-
 #endif
 
+void getProcID (char * dest, int length);
+
+unsigned long getProcIDSalt ();
+
+#if !defined(WEMOSD1MINI) && !defined(ESP32DOIT)
+#define IRAM_ATTR 
+#endif

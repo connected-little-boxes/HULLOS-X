@@ -200,7 +200,7 @@ void updateProcesses()
 
 void dumpProcessStatus()
 {
-	alwaysDisplayMessage("Processes");
+	alwaysDisplayMessage("Processes\n");
 
 	struct process *procPtr = activeProcessList;
 
@@ -244,7 +244,7 @@ void iterateThroughActiveProcesses(void (*func)(process *p))
 
 void stopProcesses()
 {
-	alwaysDisplayMessage("Stopping processes");
+	alwaysDisplayMessage("Stopping processes\n");
 
 	struct process *procPtr = activeProcessList;
 

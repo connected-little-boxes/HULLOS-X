@@ -112,6 +112,8 @@ byte regVal = 0x7F;
 volatile bool bNewInt = false;
 volatile uint8_t reg;
 
+// if the processor is not an ESP device the IRAM_ATTR symbol is defined as empty in utils.h
+
 void IRAM_ATTR readCard()
 {
     bNewInt = true;
@@ -327,7 +329,7 @@ void updateRFIDSensorReading()
 {
     if (RFIDSensor.status == RFID_CONNECTED)
     {
-        if (bNewInt)
+        if (1)
         {
             struct RFIDSensorReading *RFIDSensoractiveReading =
                 (struct RFIDSensorReading *)RFIDSensor.activeReading;

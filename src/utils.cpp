@@ -3,8 +3,6 @@
 #include "utils.h"
 #include "messages.h"
 
-#define LED_BUILTIN 2
-
 int rand_seed=1234;
 int rand_mult=8121;
 int rand_add=28411;
@@ -113,17 +111,25 @@ int currentHeap;
 
 void start_memory_monitor()
 {
+#if defined(WEMOSD1MINI) || defined(ESP32DOIT)
     currentHeap = ESP.getFreeHeap();
+#else
+    currentHeap = 0;
+#endif
 }
 
 void display_memory_monitor( char * item)
 {
-		int newHeap = (int)ESP.getFreeHeap();
-		int heapChange = currentHeap - newHeap;
-		if(heapChange != 0) {
-			displayMessage("   %s has grabbed %d of memory %d left\n", item, heapChange, newHeap);
-			currentHeap = newHeap;
-		}
+#if defined(WEMOSD1MINI) || defined(ESP32DOIT)
+    int newHeap = (int)ESP.getFreeHeap();
+    int heapChange = currentHeap - newHeap;
+    if(heapChange != 0) {
+        displayMessage("   %s has grabbed %d of memory %d left\n", item, heapChange, newHeap);
+        currentHeap = newHeap;
+    }
+#else
+    displayMessage("   Memory monitoring not enabled for this platform\n", item);
+#endif
 }
 
 void appendFormattedString(char * dest, int limit, const char *format, ...)
@@ -146,4 +152,41 @@ void appendFormattedString(char * dest, int limit, const char *format, ...)
     strcat(dest,buffer);
 
     va_end(args);
+}
+
+
+void getProcID (char * dest, int length)
+{
+#if defined(ESP32DOIT)||defined(WEMOSD1MINI)
+
+    snprintf(dest, length, "%06lx", (unsigned long)PROC_ID);
+
+#else
+	char id_buffer [(2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES) + 1];
+
+	pico_get_unique_board_id_string(id_buffer,(2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES) + 1);
+
+	snprintf(dest, length, "%s", id_buffer);
+#endif
+}
+
+unsigned long getProcIDSalt()
+{
+#if defined(ESP32DOIT)||defined(WEMOSD1MINI)
+
+    return (unsigned long)PROC_ID);
+
+#else
+    int bufferLength = (2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES) + 1;
+	char id_buffer [(2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES) + 1];
+    unsigned long result = 0;
+
+    for(int i=0;i<(2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES);i++)
+    {
+        result = result + id_buffer[i];
+    }
+
+    return result;
+#endif
+
 }

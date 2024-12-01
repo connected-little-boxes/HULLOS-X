@@ -804,6 +804,7 @@ void clockSensorStatusMessage(char *buffer, int bufferLength)
 	}
 }
 
+#ifdef SENSOR_CLOCK
 struct sensor clockSensor = {
 	"clock",
 	0, // millis at last reading
@@ -827,3 +828,4 @@ struct sensor clockSensor = {
 	NULL, // message listeners
 	ClockSensorListenerFunctions,
 	sizeof(ClockSensorListenerFunctions) / sizeof(struct sensorEventBinder)};
+#endif

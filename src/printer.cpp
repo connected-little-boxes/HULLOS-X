@@ -285,7 +285,7 @@ void printerStatusMessage(char *buffer, int bufferLength)
     }
 }
 
-#ifdef PRINTER
+#ifdef PROCESS_PRINTER
 
 struct process printerProcess = {
     "printer",

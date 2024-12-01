@@ -1,5 +1,10 @@
 #include <Arduino.h>
 
+#if defined(PICO_USE_UART)
+#include <stdio.h>
+#include <pico/stdlib.h>
+#endif
+
 #include "utils.h"
 #include "settings.h"
 #include "messages.h"
@@ -62,7 +67,11 @@ void displayMessage(const char *format, ...)
     if (len >= 0 && len < (int) sizeof(buffer))
     {
         // Print the formatted string
+        #if defined(PICO_USE_UART)
+        uart_puts(uart0, buffer);
+        #else
         Serial.print(buffer);
+        #endif
     }
 
     va_end(args);
@@ -83,15 +92,17 @@ void alwaysDisplayMessage(const char *format, ...)
     if (len >= 0 && len < (int) sizeof(buffer))
     {
         // Print the formatted string
+        #if defined(PICO_USE_UART)
+        Serial1.print(buffer);
+        #else
         Serial.print(buffer);
+        #endif
     }
 
     va_end(args);
 }
 
-
-
-// enought room for four message handlers
+// enough room for four message handlers
 
 void (*messageHandlerList[])(int messageNumber, ledFlashBehaviour severity, char *messageText) = {NULL, NULL, NULL, NULL};
 

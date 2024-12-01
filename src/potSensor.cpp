@@ -1,4 +1,4 @@
-#ifdef POT_SENSOR
+#ifdef SENSOR_POT
 
 #include "potSensor.h"
 #include "debug.h"

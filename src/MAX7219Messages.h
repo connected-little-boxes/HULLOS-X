@@ -1,3 +1,5 @@
+#if defined(PROCESS_MAX7219)
+
 #pragma once
 
 #include "controller.h"
@@ -48,3 +50,5 @@ extern struct max7219MessagesSettings max7219max7219MessagesSettings;
 extern struct SettingItemCollection max7219max7219MessagesSettingItems;
 
 extern struct process max7219MessagesProcess;
+
+#endif

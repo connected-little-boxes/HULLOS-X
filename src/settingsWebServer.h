@@ -1,3 +1,5 @@
+#if defined(SETTINGS_WEB_SERVER)
+
 #pragma once
 
 #include "settings.h"
@@ -10,3 +12,4 @@
 
 void startHostingConfigWebsite(bool timeout);
 
+#endif

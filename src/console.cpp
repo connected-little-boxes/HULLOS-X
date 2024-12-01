@@ -137,7 +137,6 @@ void doRestart(char *commandLine)
 
 void doClear(char *commandLine)
 {
-	LittleFS.format();
 	resetSettings();
 	saveSettings();
 	internalReboot(COLD_BOOT_MODE);
@@ -149,28 +148,28 @@ void doSaveSettings(char *commandline)
 	alwaysDisplayMessage("\nSettings saved");
 }
 
-#ifdef BUTTON
+#ifdef SENSOR_BUTTON
 void doTestButtonSensor(char *commandline)
 {
 	buttonSensorTest();
 }
 #endif
 
-#ifdef PIR
+#ifdef SENSOR_PIR
 void doTestPIRSensor(char *commandline)
 {
 	pirSensorTest();
 }
 #endif
 
-#ifdef ROTARY_SENSOR
+#ifdef SENSOR_ROTARY
 void doTestRotarySensor(char *commandline)
 {
 	rotarySensorTest();
 }
 #endif
 
-#ifdef POT_SENSOR
+#ifdef SENSOR_POT
 void doTestPotSensor(char *commandline)
 {
 	potSensorTest();
@@ -523,14 +522,15 @@ void deleteFileInStore(char *deleteName)
 				const char *filename = (const char *)storeFile.name();
 				char compareFileName[STORE_FILENAME_LENGTH];
 
-				// on the ESP8266 LittleFS the dir name function just delivers the name of the file in the folder(test)
+				// on the ESP8266 and the PICO LittleFS the dir name function just delivers the name of the file in the folder(test)
 				// on the ESP32 LittleFS it delivers the file path to the file (\start\test)
+
 
 #if defined(ARDUINO_ARCH_ESP32)
 				buildStoreFilename(compareFileName, STORE_FILENAME_LENGTH, storeName, deleteName);
 #endif
 
-#if defined(ARDUINO_ARCH_ESP8266)
+#if defined(ARDUINO_ARCH_ESP8266)  || defined(PICO)
 				strcpy(compareFileName, deleteName);
 #endif
 
@@ -542,7 +542,7 @@ void deleteFileInStore(char *deleteName)
 					strcpy(fullDeleteFileName, compareFileName);
 #endif
 
-#if defined(ARDUINO_ARCH_ESP8266)
+#if defined(ARDUINO_ARCH_ESP8266)  || defined(PICO)
 					buildStoreFilename(fullDeleteFileName, STORE_FILENAME_LENGTH, storeName, filename);
 #endif
 				}
@@ -587,7 +587,7 @@ void doDeleteCommand(char *commandLine)
 
 struct consoleCommand userCommands[] =
 	{
-#ifdef BUTTON
+#ifdef SENSOR_BUTTON
 		{"buttontest", "test the button sensor", doTestButtonSensor},
 #endif
 		{"clearalllisteners", "clear all the command listeners", doClearAllListeners},
@@ -604,14 +604,14 @@ struct consoleCommand userCommands[] =
 		{"listeners", "list the command listeners", doDumpListeners},
 		{"help", "show all the commands", doHelp},
 		{"otaupdate", "start an over-the-air firmware update", doOTAUpdate},
-#ifdef PIR
+#ifdef SENSOR_PIR
 		{"pirtest", "test the PIR sensor", doTestPIRSensor},
 #endif
-#ifdef POT_SENSOR
+#ifdef SENSOR_POT
 		{"pottest", "test the pot sensor", doTestPotSensor},
 #endif
 		{"rfidtest", "test the RFID sensor", doTestRFIDSensor},
-#ifdef ROTARY_SENSOR
+#ifdef SENSOR_ROTARY
 		{"rotarytest", "test the rotary sensor", doTestRotarySensor},
 #endif
 		{"restart", "restart the device", doRestart},

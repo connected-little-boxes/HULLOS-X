@@ -5,7 +5,7 @@
 #include "boot.h"
 #include "otaupdate.h"
 
-#if defined(ARDUINO_ARCH_PICO)
+#if defined(PICO)
 #include "WiFi.h"
 #endif
 

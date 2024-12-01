@@ -89,20 +89,12 @@ void setDefaultMQTTsecsPerRetry(void *dest)
 void setDefaultMQTTDeviceName(void *dest)
 {
 	char *destStr = (char *)dest;
-	
-	#if defined(ARDUINO_ARCH_PICO)
 
-	char id_buffer [(2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES) + 1];
+	char id_buffer[DEVICE_NAME_LENGTH];
 
-	pico_get_unique_board_id_string(id_buffer,(2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES) + 1);
+	getProcID(id_buffer,DEVICE_NAME_LENGTH-4);
 
 	snprintf(destStr, DEVICE_NAME_LENGTH, "CLB-%s", id_buffer);
-
-	#else
-
-	snprintf(destStr, DEVICE_NAME_LENGTH, "CLB-%06lx", PROC_ID);
-
-	#endif
 }
 
 boolean validateMQTTDeviceName(void *dest, const char *newValueStr)

@@ -1,3 +1,5 @@
+#if defined(PROCESS_MAX7219)
+
 #include <Arduino.h>
 
 #include "utils.h"
@@ -908,7 +910,6 @@ void MAX7219MessagesStatusMessage(char *buffer, int bufferLength)
     }
 }
 
-#ifdef MAX7219
 struct process max7219MessagesProcess = {
     "max7219",
     initMAX7219Messages,
@@ -932,3 +933,4 @@ struct process max7219MessagesProcess = {
     0     // no command options
 };
 #endif
+

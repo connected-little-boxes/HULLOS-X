@@ -158,10 +158,12 @@ void beginWiFiScanning()
 
 	if (firstRun)
 	{
+#ifndef PICO
 		WiFi.mode(WIFI_OFF);
 		delay(100);
 		WiFi.mode(WIFI_STA);
 		delay(100);
+#endif
 		firstRun = false;
 		wifiConnectAttempts = 0;
 	}
@@ -204,11 +206,15 @@ void handleConnectFailure()
 
 void handleFailedWiFiScan()
 {
-	displayMessage("No networks found that match stored network names");
+	displayMessage("No networks found that match stored network names\n");
 	handleConnectFailure();
 	hardwareDisplayMessage(WIFI_STATUS_NO_MATCHING_NETWORKS_MESSAGE_NUMBER, ledFlashAlertState, WIFI_STATUS_NO_MATCHING_NETWORKS_MESSAGE_TEXT);
 	startReconnectTimer();
 }
+
+#ifdef PICO
+#define WIFI_SCAN_RUNNING -1
+#endif
 
 void checkWiFiScanResult()
 {

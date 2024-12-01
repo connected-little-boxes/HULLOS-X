@@ -310,6 +310,8 @@ void buttonSensorStatusMessage(char *buffer, int bufferLength)
 	}
 }
 
+#ifdef SENSOR_BUTTON
+
 struct sensor buttonSensor = {
 	"button",
 	0, // millis at last reading
@@ -333,3 +335,5 @@ struct sensor buttonSensor = {
 	NULL, // message listeners
 	ButtonSensorListenerFunctions,
 	sizeof(ButtonSensorListenerFunctions) / sizeof(struct sensorEventBinder)};
+	
+#endif

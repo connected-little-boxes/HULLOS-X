@@ -6,27 +6,11 @@
 #include "debug.h"
 #include "utils.h"
 
-#if defined(ARDUINO_ARCH_PICO)
+#if defined(PROCESS_PIXELS)
+#include "pixels.h"
+#endif
 
 #include "settings.h"
-#include "pixels.h"
-#include "processes.h"
-#include "sensors.h"
-#include "controller.h"
-#include "statusled.h"
-#include "messages.h"
-#include "console.h"
-#include "connectwifi.h"
-#include "mqtt.h"
-#include "clock.h"
-#include "registration.h"
-#include "boot.h" 
-#include "robotProcess.h"
-
-#else
-
-#include "settings.h"
-#include "pixels.h"
 #include "processes.h"
 #include "sensors.h"
 #include "pirSensor.h"
@@ -54,82 +38,94 @@
 #include "robotProcess.h"
 #include "RFID.h"
 
-#endif
-
 
 // This function will be different for each build of the device.
 
 void populateProcessList()
 {
-#if defined(ARDUINO_ARCH_PICO)
+#if defined(PROCESS_PIXELS)
   addProcessToAllProcessList(&pixelProcess);
+#endif
+#if defined(PROCESS_STATUS_LED)
   addProcessToAllProcessList(&statusLedProcess);
-  addProcessToAllProcessList(&messagesProcess);
-  addProcessToAllProcessList(&consoleProcessDescriptor);
-  addProcessToAllProcessList(&WiFiProcessDescriptor);
-  addProcessToAllProcessList(&MQTTProcessDescriptor);
-  addProcessToAllProcessList(&controllerProcess);
-  addProcessToAllProcessList(&RegistrationProcess);
-  addProcessToAllProcessList(&robotProcess);
-#else
-// Add the core processes
-  addProcessToAllProcessList(&pixelProcess);
-  addProcessToAllProcessList(&statusLedProcess);
+#endif
+
+#if defined(PROCESS_INPUT_SWITCH)
   addProcessToAllProcessList(&inputSwitchProcess);
+#endif
+
+#if defined(PROCESS_MESSAGES)
   addProcessToAllProcessList(&messagesProcess);
+#endif
+
+#if defined(PROCESS_CONSOLE)
   addProcessToAllProcessList(&consoleProcessDescriptor);
+#endif
+
+#if defined(PROCESS_WIFI)
   addProcessToAllProcessList(&WiFiProcessDescriptor);
+#endif
+
+#if defined(PROCESS_MQTT)
   addProcessToAllProcessList(&MQTTProcessDescriptor);
+#endif
+
+#if defined(PROCESS_CONTROLLER)
   addProcessToAllProcessList(&controllerProcess);
+#endif
+
+#if defined(PROCESS_REGISTRATION)
   addProcessToAllProcessList(&RegistrationProcess);
+#endif
 // Add the options
-#ifdef SERVO
+#ifdef PROCESS_SERVO
   addProcessToAllProcessList(&ServoProcess);
 #endif
-#ifdef MAX7219
+
+#ifdef PROCESS_MAX7219
   addProcessToAllProcessList(&max7219MessagesProcess);
 #endif
-#ifdef PRINTER
+#ifdef PROCESS_PRINTER
   addProcessToAllProcessList(&printerProcess);
 #endif
-#ifdef HULLOS
+#ifdef PROCESS_HULLOS
   addProcessToAllProcessList(&hullosProcess);
 #endif
-#ifdef OUTPIN
+#ifdef PROCESS_OUTPIN
   addProcessToAllProcessList(&outPinProcess);
 #endif
-#ifdef ROBOT
+#ifdef PROCESS_ROBOT
   addProcessToAllProcessList(&robotProcess);
-#endif
 #endif
 }
 
 void populateSensorList()
 {
-#if defined(ARDUINO_ARCH_PICO)
+#ifdef SENSOR_CLOCK
   addSensorToAllSensorsList(&clockSensor);
   addSensorToActiveSensorsList(&clockSensor);
-#else
-#ifdef PIR
+#endif
+#ifdef SENSOR_PIR
   addSensorToAllSensorsList(&pirSensor);
   addSensorToActiveSensorsList(&pirSensor);
 #endif
-#ifdef BUTTON
+#ifdef SENSOR_BUTTON
   addSensorToAllSensorsList(&buttonSensor);
   addSensorToActiveSensorsList(&buttonSensor);
 #endif
-  addSensorToAllSensorsList(&clockSensor);
-  addSensorToActiveSensorsList(&clockSensor);
-#ifdef ROTARY_SENSOR
+#ifdef SENSOR_ROTARY
   addSensorToAllSensorsList(&rotarySensor);
   addSensorToActiveSensorsList(&rotarySensor);
 #endif
-#ifdef POT_SENSOR
+#ifdef SENSOR_POT
   addSensorToAllSensorsList(&potSensor);
   addSensorToActiveSensorsList(&potSensor);
 #endif
+#ifdef SENSOR_BME280
   addSensorToAllSensorsList(&bme280Sensor);
   addSensorToActiveSensorsList(&bme280Sensor);
+#endif
+#ifdef SENSOR_RFID
   addSensorToAllSensorsList(&RFIDSensor);
   addSensorToActiveSensorsList(&RFIDSensor);
 #endif
@@ -148,7 +144,18 @@ unsigned long heapPrintTime = 0;
 
 void startDevice()
 {
+
+#if defined(PICO_USE_UART)
+    Serial1.begin(115200); 
+    delay(100);
+    while(1){
+      Serial1.print(".");
+      delay(200);
+    }
+#else
   Serial.begin(115200);
+#endif
+
 
   delay(100);
 
@@ -226,6 +233,8 @@ void startDevice()
 
   if (bootMode == COLD_BOOT_MODE)
   {
+
+#if defined(SETTINGS_WEB_SERVER)    
     // first power up
     if (needWifiConfigBootMode())
     {
@@ -245,18 +254,22 @@ void startDevice()
     {
       startHostingConfigWebsite(true);
     }
+#endif 
 
+#if defined(WEMOSD1MINI) || defined(ESP32DOIT)
     if (bootMode == OTA_UPDATE_BOOT_MODE)
     {
       performOTAUpdate();
     }
+#endif
+
   }
 
   startstatusLedFlash(1000);
 
   initialiseAllProcesses();
 
-  DISPLAY_MEMORY_MONITOR("Initialise all processes");
+  DISPLAY_MEMORY_MONITOR("Initialise all processes\n");
 
   beginStatusDisplay(VERY_DARK_RED_COLOUR);
 
@@ -267,13 +280,13 @@ void startDevice()
 
   startProcesses();
 
-  DISPLAY_MEMORY_MONITOR("Initialise all processes");
+  DISPLAY_MEMORY_MONITOR("Initialise all processes\n");
 
   bindMessageHandler(displayControlMessage);
 
   startSensors();
 
-  DISPLAY_MEMORY_MONITOR("Start all sensors");
+  DISPLAY_MEMORY_MONITOR("Start all sensors\n");
 
   addStatusItem(PIXEL_STATUS_OK);
   renderStatusDisplay();
@@ -318,5 +331,5 @@ void loop()
   updateSensors();
   updateProcesses();
   delay(5);
-  DISPLAY_MEMORY_MONITOR("System");
+//  DISPLAY_MEMORY_MONITOR("System");
 }

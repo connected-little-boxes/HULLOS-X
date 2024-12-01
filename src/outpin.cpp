@@ -386,7 +386,7 @@ void OutPinStatusMessage(char *buffer, int bufferLength)
         snprintf(buffer, bufferLength, "OutPin off");
 }
 
-#ifdef OUTPIN
+#ifdef PROCESS_OUTPIN
 
 struct process outPinProcess = {
     "outpin",

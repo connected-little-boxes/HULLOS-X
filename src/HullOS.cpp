@@ -127,7 +127,7 @@ void hullosStatusMessage(char *buffer, int bufferLength)
     }
 }
 
-#ifdef HULLOS
+#ifdef PROCESS_HULLOS
 
 struct process hullosProcess = {
     "hullos",

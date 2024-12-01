@@ -40,6 +40,9 @@ struct SettingItem statusLedOutputPinActiveLowSetting = {
 	#if defined(ARDUINO_ARCH_ESP8266)
     setTrue,
     #endif
+	#if defined(PICO)
+    setTrue,
+    #endif
     validateYesNo};
 
 struct SettingItem statusLedEnabled = {

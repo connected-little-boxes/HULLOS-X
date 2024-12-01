@@ -1,12 +1,11 @@
 #pragma once
 
+#include "version.h"
 #include "processes.h"
 #include "connectwifi.h"
 
 #define OTAUPDATE_OK 1200
 #define OTAUPDATE_OFF 1201
-
-#define Version "3.0.0.4"
 
 void performOTAUpdate();
 void checkBootOtaUpdate();

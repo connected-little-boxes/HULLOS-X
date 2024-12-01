@@ -306,7 +306,7 @@ void robotStatusMessage(char *buffer, int bufferLength)
     }
 }
 
-#ifdef ROBOT
+#ifdef PROCESS_ROBOT
 
 struct process robotProcess = {
     "robot",

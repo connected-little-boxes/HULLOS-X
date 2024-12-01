@@ -5,6 +5,7 @@
 #if defined(ARDUINO_ARCH_ESP8266)
 #include "LittleFS.h"
 #endif
+#include "LittleFS.h"
 
 #if defined(ARDUINO_ARCH_ESP32)
 #include "FS.h"
@@ -22,15 +23,15 @@
 #include "registration.h"
 #include "HullOS.h"
 
+SettingsStoreStatus settingsStoreStatus = SETTINGS_STATUS_JUST_BOOTED;
+
 // These functions are called to encrypt/decrypt fields of type password
 // They are identical at the momement, but if you want to add some extra
 // salt you can modify them accordingly.
 
-#if defined(ARDUINO_ARCH_ESP32)
-
 void encryptString(char *destination, int destLength, char *source)
 {
-	unsigned long seed = (PROC_ID + ENCRYPTION_SALT) % 0xFFFF ;
+	unsigned long seed = (ENCRYPTION_SALT) % 0xFFFF ;
 	//messageLogf("Encrypting: %s seed:%lu\n", source, seed);
 
 	localSrand(seed);
@@ -56,7 +57,7 @@ void encryptString(char *destination, int destLength, char *source)
 
 void decryptString(char *destination, int destLength, char *source)
 {
-	unsigned long seed = (PROC_ID + ENCRYPTION_SALT) % 0xFFFF ;
+	unsigned long seed = (ENCRYPTION_SALT) % 0xFFFF ;
 	//messageLogf("Decrypting: %s seed:%lu\n", source, seed);
 
 	localSrand(seed);
@@ -80,59 +81,6 @@ void decryptString(char *destination, int destLength, char *source)
 	*dest = 0;
 	//messageLogf("Output:%s\n", destination);
 }
-
-#endif
-
-#if defined(ARDUINO_ARCH_ESP8266)
-
-// use the original Arduino code here because existing devices 
-// contain passwords encoded this way
-
-void encryptString(char * destination, int destLength, char * source)
-{
-	randomSeed(PROC_ID+ENCRYPTION_SALT);
-	int pos = 0;
-	char * dest = destination;
-	destLength= destLength -1;
-	while(*source)
-	{
-		int mask = random(1,30);
-		*dest = *source ^ mask;
-		dest++;
-		source++;
-		pos++;
-		if(pos==destLength)
-		{
-			break;
-		}
-	}
-	*dest=0;
-}
-
-void decryptString(char * destination, int destLength, char * source)
-{
-	randomSeed(PROC_ID+ENCRYPTION_SALT);
-	int pos = 0;
-	char * dest = destination;
-	destLength= destLength -1;
-	while(*source)
-	{
-		int mask = random(1,30);
-		*dest = *source ^ mask;
-		dest++;
-		source++;
-		pos++;
-		if(pos==destLength)
-		{
-			break;
-		}
-	}
-
-	*dest=0;
-}
-
-#endif
-
 
 void setEmptyString(void *dest)
 {
@@ -803,7 +751,11 @@ void PrintSettingCollectionFiltered(SettingItemCollection *settingCollection)
 
 void PrintSystemDetails(char *buffer, int length)
 {
-	snprintf(buffer, length, "CLB-%06lx", (unsigned long)PROC_ID);
+	char id_buffer[DEVICE_NAME_LENGTH];
+
+	getProcID(id_buffer,DEVICE_NAME_LENGTH-4);
+
+	snprintf(buffer, length, "CLB-%s", id_buffer);
 }
 
 void PrintAllSettings()
@@ -812,9 +764,9 @@ void PrintAllSettings()
 	PrintSystemDetails(deviceNameBuffer, DEVICE_NAME_LENGTH);
 
 	alwaysDisplayMessage(deviceNameBuffer);
-	alwaysDisplayMessage("Sensors");
+	alwaysDisplayMessage("Sensors\n");
 	iterateThroughSensorSettingCollections(PrintSettingCollection);
-	alwaysDisplayMessage("Processes");
+	alwaysDisplayMessage("Processes\n");
 	iterateThroughProcessSettingCollections(PrintSettingCollection);
 }
 
@@ -824,9 +776,9 @@ void PrintSomeSettings(char *filter)
 	char deviceNameBuffer[DEVICE_NAME_LENGTH];
 	PrintSystemDetails(deviceNameBuffer, DEVICE_NAME_LENGTH);
 	alwaysDisplayMessage(deviceNameBuffer);
-	alwaysDisplayMessage("Sensors");
+	alwaysDisplayMessage("Sensors\n");
 	iterateThroughSensorSettingCollections(PrintSettingCollectionFiltered);
-	alwaysDisplayMessage("Processes");
+	alwaysDisplayMessage("Processes\n");
 	iterateThroughProcessSettingCollections(PrintSettingCollectionFiltered);
 }
 
@@ -846,9 +798,9 @@ void PrintStorage()
 	char deviceNameBuffer[DEVICE_NAME_LENGTH];
 	PrintSystemDetails(deviceNameBuffer, DEVICE_NAME_LENGTH);
 	alwaysDisplayMessage(deviceNameBuffer);
-	alwaysDisplayMessage("Sensors");
+	alwaysDisplayMessage("Sensors\n");
 	iterateThroughSensors(printSettingStorage);
-	alwaysDisplayMessage("Processes");
+	alwaysDisplayMessage("Processes\n");
 	iterateThroughAllProcesses(printProcessStorage);
 }
 
@@ -902,10 +854,11 @@ void DumpSomeSettings(char *filter)
 
 void resetSettings()
 {
-	// PROC_ID is defined in utils.h
 	resetProcessesToDefaultSettings();
 	resetSensorsToDefaultSettings();
 	resetControllerListenersToDefaults();
+
+	saveSettings();
 }
 
 void iterateThroughAllSettings(void (*func)(unsigned char *settings, int size))
@@ -917,6 +870,11 @@ void iterateThroughAllSettings(void (*func)(unsigned char *settings, int size))
 
 void saveSettings()
 {
+	if(settingsStoreStatus != SETTING_STATUS_OK)
+	{
+		alwaysDisplayMessage("Settings store unavailable %d\n", settingsStoreStatus);
+		return;
+	}
 	saveAllSettingsToFile(SETTINGS_FILENAME);
 }
 
@@ -1099,32 +1057,30 @@ SettingsSetupStatus setupSettings()
 
 	TRACELOGLN("Setting up settings");
 
-#if defined(ARDUINO_ARCH_ESP8266)
-	if (!LittleFS.begin())
-	{
-		displayMessage("An Error has occurred while mounting SPIFFS");
-		result = SETTINGS_FILE_SYSTEM_FAIL;
+	switch(settingsStoreStatus){
+	case SETTING_STATUS_OK :
+		return SETTINGS_SETUP_OK;
+	case SETTING_STATUS_FILE_SYSTEM_FAILED:
+		return SETTINGS_FILE_SYSTEM_FAIL;
+	case SETTINGS_STATUS_JUST_BOOTED:
+		if (!LittleFS.begin())
+		{
+			displayMessage("An Error has occurred while mounting SPIFFS");
+			settingsStoreStatus = SETTING_STATUS_FILE_SYSTEM_FAILED;
+			return SETTINGS_FILE_SYSTEM_FAIL;
+		}
 	}
-#endif
-
-#if defined(ARDUINO_ARCH_ESP32)
-	if (!LittleFS.begin(true))
-	{
-		displayMessage("An Error has occurred while mounting SPIFFS");
-		result = SETTINGS_FILE_SYSTEM_FAIL;
-	}
-
-#endif
-
-	resetSettings();
 
 	if (loadSettings())
 	{
+		settingsStoreStatus = SETTING_STATUS_OK;
 		result = SETTINGS_SETUP_OK;
 	}
 	else
 	{
 		resetSettings();
+		saveSettings();
+		settingsStoreStatus = SETTING_STATUS_OK;
 		result = SETTINGS_RESET_TO_DEFAULTS;
 	}
 

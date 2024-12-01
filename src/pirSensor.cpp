@@ -1,4 +1,4 @@
-#ifdef PIR
+#ifdef SENSOR_PIR
 
 
 #include "pirSensor.h"
@@ -283,6 +283,7 @@ void pirSensorStatusMessage(char *buffer, int bufferLength)
 		break;
 	}
 }
+
 
 struct sensor pirSensor = {
 	"PIR",

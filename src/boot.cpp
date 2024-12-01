@@ -222,7 +222,7 @@ int getInternalBootCode()
     return bootCode;
 #endif
 
-#if defined(ARDUINO_ARCH_PICO)
+#if defined(PICO)
 
 return COLD_BOOT_MODE;
 
@@ -257,7 +257,7 @@ bool isSoftwareReset()
     return getRestartCode() == ESP_RST_SW;
 #endif
 
-#if defined(ARDUINO_ARCH_PICO)
+#if defined(PICO)
     return false;
 #endif
 }
@@ -316,9 +316,8 @@ void internalReboot(unsigned char rebootCode)
 {
     setInternalBootCode(rebootCode);
 
-
-#if defined(ARDUINO_ARCH_PICO)
-    reset_usb_boot(1, 0);
+#if defined(PICO)
+    watchdog_reboot(0, 0, 0);
 #endif
 
 #if defined(ARDUINO_ARCH_ESP32)
