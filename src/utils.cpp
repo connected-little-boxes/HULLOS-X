@@ -157,11 +157,15 @@ void appendFormattedString(char * dest, int limit, const char *format, ...)
 
 void getProcID (char * dest, int length)
 {
-#if defined(ESP32DOIT)||defined(WEMOSD1MINI)
+#if defined(ESP32DOIT)
+    snprintf(dest, length, "%06lx", (unsigned long)ESP.getEfuseMac());
+#endif
 
-    snprintf(dest, length, "%06lx", (unsigned long)PROC_ID);
+#if defined(WEMOSD1MINI)
+    snprintf(dest, length, "%06lx", (unsigned long)ESP.getChipId());
+#endif
 
-#else
+#if defined(PICO)
 	char id_buffer [(2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES) + 1];
 
 	pico_get_unique_board_id_string(id_buffer,(2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES) + 1);
@@ -172,11 +176,16 @@ void getProcID (char * dest, int length)
 
 unsigned long getProcIDSalt()
 {
-#if defined(ESP32DOIT)||defined(WEMOSD1MINI)
 
-    return (unsigned long)PROC_ID);
+#if defined(ESP32DOIT)
+    return (unsigned long)ESP.getEfuseMac();
+#endif
 
-#else
+#if defined(WEMOSD1MINI)
+   return (unsigned long)ESP.getChipId();
+#endif
+
+#if defined(PICO)
     int bufferLength = (2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES) + 1;
 	char id_buffer [(2 * PICO_UNIQUE_BOARD_ID_SIZE_BYTES) + 1];
     unsigned long result = 0;

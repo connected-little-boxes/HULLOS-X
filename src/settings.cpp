@@ -25,6 +25,63 @@
 
 SettingsStoreStatus settingsStoreStatus = SETTINGS_STATUS_JUST_BOOTED;
 
+
+#if defined(WEMOSD1MINI)
+
+#define PROC_ID (unsigned long)ESP.getChipId()
+
+// use the original Arduino code here because existing devices 
+// contain passwords encoded this way
+
+void encryptString(char * destination, int destLength, char * source)
+{
+	randomSeed(PROC_ID+ENCRYPTION_SALT);
+	int pos = 0;
+	char * dest = destination;
+	destLength= destLength -1;
+	while(*source)
+	{
+		int mask = random(1,30);
+		*dest = *source ^ mask;
+		dest++;
+		source++;
+		pos++;
+		if(pos==destLength)
+		{
+			break;
+		}
+	}
+	*dest=0;
+}
+
+void decryptString(char * destination, int destLength, char * source)
+{
+	randomSeed(PROC_ID+ENCRYPTION_SALT);
+	int pos = 0;
+	char * dest = destination;
+	destLength= destLength -1;
+	while(*source)
+	{
+		int mask = random(1,30);
+		*dest = *source ^ mask;
+		dest++;
+		source++;
+		pos++;
+		if(pos==destLength)
+		{
+			break;
+		}
+	}
+
+	*dest=0;
+}
+
+#endif
+
+
+#if defined(PICO)
+
+
 // These functions are called to encrypt/decrypt fields of type password
 // They are identical at the momement, but if you want to add some extra
 // salt you can modify them accordingly.
@@ -81,6 +138,68 @@ void decryptString(char *destination, int destLength, char *source)
 	*dest = 0;
 	//messageLogf("Output:%s\n", destination);
 }
+
+#endif
+
+#if defined(ESP32DOIT)
+
+#define PROC_ID (unsigned long)ESP.getEfuseMac()
+
+void encryptString(char *destination, int destLength, char *source)
+{
+	unsigned long seed = (PROC_ID + ENCRYPTION_SALT) % 0xFFFF ;
+	//messageLogf("Encrypting: %s seed:%lu\n", source, seed);
+
+	localSrand(seed);
+	int pos = 0;
+	char *dest = destination;
+	destLength = destLength - 1;
+	while (*source)
+	{
+		int mask = (localRand()%30)+1;
+		*dest = *source ^ mask;
+		//messageLogf("    mask:%d source:%c %d  dest:%c %d\n", mask, *source,*source, *dest, *dest);
+		dest++;
+		source++;
+		pos++;
+		if (pos == destLength)
+		{
+			break;
+		}
+	}
+	*dest = 0;
+	//messageLogf("Output:%s\n", destination);
+}
+
+void decryptString(char *destination, int destLength, char *source)
+{
+	unsigned long seed = (PROC_ID + ENCRYPTION_SALT) % 0xFFFF ;
+	//messageLogf("Decrypting: %s seed:%lu\n", source, seed);
+
+	localSrand(seed);
+	int pos = 0;
+	char *dest = destination;
+	destLength = destLength - 1;
+	while (*source)
+	{
+		int mask = (localRand()%30)+1;
+		*dest = *source ^ mask;
+		//messageLogf("    mask:%d source:%c %d  dest:%c %d\n", mask, *source,*source, *dest, *dest);
+		dest++;
+		source++;
+		pos++;
+		if (pos == destLength)
+		{
+			break;
+		}
+	}
+
+	*dest = 0;
+	//messageLogf("Output:%s\n", destination);
+}
+
+#endif
+
 
 void setEmptyString(void *dest)
 {

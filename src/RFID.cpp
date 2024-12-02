@@ -329,7 +329,7 @@ void updateRFIDSensorReading()
 {
     if (RFIDSensor.status == RFID_CONNECTED)
     {
-        if (1)
+        if (bNewInt)
         {
             struct RFIDSensorReading *RFIDSensoractiveReading =
                 (struct RFIDSensorReading *)RFIDSensor.activeReading;
