@@ -10,9 +10,12 @@
 #endif
 
 #ifdef PICO
-#define SS_PIN 24
-#define RST_PIN 22
-#define INT_PIN 23
+#define SS_PIN 5
+#define RST_PIN 20
+#define INT_PIN 21
+#define MOSI_PIN 3
+#define MISO_PIN 4
+#define SCK 2
 #endif
 
 

@@ -469,6 +469,11 @@ int doSetPixelColor(char *destination, unsigned char *settingBase)
 		return publishCommandToRemoteDevice(buffer, destination);
 	}
 
+	if(pixelProcess.status != PIXEL_OK)
+	{
+		return JSON_MESSAGE_PIXELS_NOT_ENABLED;
+	}
+	
 	// sets the pixel colour - caller has set the r,g and b values
 
 	float red = (float)getUnalignedFloat(settingBase + RED_PIXEL_COMMAND_OFFSET);
@@ -518,6 +523,11 @@ int doSetBackColor(char *destination, unsigned char *settingBase)
 		return publishCommandToRemoteDevice(buffer, destination);
 	}
 
+	if(pixelProcess.status != PIXEL_OK)
+	{
+		return JSON_MESSAGE_PIXELS_NOT_ENABLED;
+	}
+	
 	// sets the pixel colour - caller has set the r,g and b values
 
 	float red = (float)getUnalignedFloat(settingBase + RED_PIXEL_COMMAND_OFFSET);
@@ -556,6 +566,11 @@ int doSetNamedColour(char *destination, unsigned char *settingBase)
 		return publishCommandToRemoteDevice(buffer, destination);
 	}
 
+	if(pixelProcess.status != PIXEL_OK)
+	{
+		return JSON_MESSAGE_PIXELS_NOT_ENABLED;
+	}
+	
 	struct colourNameLookup *col;
 
 	char *colourName = (char *)(settingBase + COLOURNAME_PIXEL_COMMAND_OFFSET);
@@ -612,6 +627,11 @@ int doSetNamedBackgroundColour(char *destination, unsigned char *settingBase)
 		return publishCommandToRemoteDevice(buffer, destination);
 	}
 
+	if(pixelProcess.status != PIXEL_OK)
+	{
+		return JSON_MESSAGE_PIXELS_NOT_ENABLED;
+	}
+	
 	struct colourNameLookup *col;
 
 	char *colourName = (char *)(settingBase + COLOURNAME_PIXEL_COMMAND_OFFSET);
@@ -679,6 +699,11 @@ int doSetRandomColour(char *destination, unsigned char *settingBase)
 		return publishCommandToRemoteDevice(buffer, destination);
 	}
 
+	if(pixelProcess.status != PIXEL_OK)
+	{
+		return JSON_MESSAGE_PIXELS_NOT_ENABLED;
+	}
+	
 	char *option = (char *)(settingBase + COMMAND_PIXEL_OPTION_OFFSET);
 
 	if (strcasecmp(option, "timed") == 0)
@@ -722,6 +747,11 @@ int doSetTwinkle(char *destination, unsigned char *settingBase)
 		return publishCommandToRemoteDevice(buffer, destination);
 	}
 
+	if(pixelProcess.status != PIXEL_OK)
+	{
+		return JSON_MESSAGE_PIXELS_NOT_ENABLED;
+	}
+	
 	char *option = (char *)(settingBase + COMMAND_PIXEL_OPTION_OFFSET);
 
 	if (strcasecmp(option, "timed") == 0)
@@ -762,6 +792,11 @@ int doSetBrightness(char *destination, unsigned char *settingBase)
 		return publishCommandToRemoteDevice(buffer, destination);
 	}
 
+	if(pixelProcess.status != PIXEL_OK)
+	{
+		return JSON_MESSAGE_PIXELS_NOT_ENABLED;
+	}
+	
 	float brightness = getUnalignedFloat(settingBase + FLOAT_VALUE_OFFSET);
 
 	int steps = getUnalignedInt(settingBase + SPEED_PIXEL_COMMAND_OFFSET);
@@ -798,6 +833,11 @@ int doSetPattern(char *destination, unsigned char *settingBase)
 		return publishCommandToRemoteDevice(buffer, destination);
 	}
 
+	if(pixelProcess.status != PIXEL_OK)
+	{
+		return JSON_MESSAGE_PIXELS_NOT_ENABLED;
+	}
+	
 	char *colourMask = (char *)(settingBase + COLOURNAME_PIXEL_COMMAND_OFFSET);
 	char *pattern = (char *)(settingBase + COMMAND_PIXEL_PATTERN_OFFSET);
 	int steps = getUnalignedInt(settingBase + SPEED_PIXEL_COMMAND_OFFSET);
@@ -847,6 +887,11 @@ int doPixelMapValue(char *destination, unsigned char *settingBase)
 		return publishCommandToRemoteDevice(buffer, destination);
 	}
 
+	if(pixelProcess.status != PIXEL_OK)
+	{
+		return JSON_MESSAGE_PIXELS_NOT_ENABLED;
+	}
+	
 	float value = getUnalignedFloat(settingBase + FLOAT_VALUE_OFFSET);
 
 	TRACELOG("Value:");
