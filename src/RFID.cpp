@@ -114,6 +114,8 @@ volatile uint8_t reg;
 
 // if the processor is not an ESP device the IRAM_ATTR symbol is defined as empty in utils.h
 
+
+#if defined(PICO)
 // maximum size is 10 according to the MFRC522 spec - so this should be fine
 
 #define UID_BUFFER_LENGTH 20
@@ -121,24 +123,33 @@ volatile uint8_t reg;
 byte uidLength;
 
 byte uidReceivedBuffer[UID_BUFFER_LENGTH];
-byte previousUidBuffer[UID_BUFFER_LENGTH];
 
 void IRAM_ATTR readCard()
 {
-    if (!bNewInt)
-    {
+    if(!bNewInt){
         if (mfrc522->PICC_ReadCardSerial())
         {
             // ignore repeated interrupts if they have not been handled
             bNewInt = true;
             uidLength = mfrc522->uid.size;
-            memcpy(uidReceivedBuffer, mfrc522->uid.uidByte, uidLength);
+            memcpy(uidReceivedBuffer,mfrc522->uid.uidByte,uidLength);
             mfrc522->PICC_HaltA();
         }
     }
     // enable interrupts
     mfrc522->PCD_WriteRegister(mfrc522->ComIrqReg, 0x7F);
 }
+#endif
+
+#if defined(WEMOSD1MINI)
+
+void IRAM_ATTR readCard()
+{
+    bNewInt = true;
+    reg = mfrc522->PCD_ReadRegister(MFRC522::Status1Reg);
+}
+#endif
+
 
 void activateRec()
 {
@@ -253,10 +264,11 @@ void checkRFIDCard(char *id)
                  "drink");
 
         Serial.printf("Sending rfid: %s\n", messageBuffer);
-
+        
         publishBufferToMQTTTopic(messageBuffer, RFID_MESSAGE_TOPIC);
 
         rfidLightStart = millis();
+
     }
     else
     {
@@ -316,7 +328,7 @@ void startRFIDSensor()
         SPI.setMISO(MISO_PIN);
         SPI.setMOSI(MOSI_PIN);
         SPI.setSCK(SCK);
-#endif
+#endif        
         SPI.begin(); // Init SPI bus
 
         if (mfrc522 == NULL)
@@ -349,81 +361,80 @@ void startRFIDSensor()
     }
 }
 
+#if defined(PICO)
+
 void updateRFIDSensorReading()
 {
     if (RFIDSensor.status == RFID_CONNECTED)
     {
         if (bNewInt)
         {
-            if (memcmp(uidReceivedBuffer, previousUidBuffer, uidLength) != 0)
+            struct RFIDSensorReading *RFIDSensoractiveReading =
+                (struct RFIDSensorReading *)RFIDSensor.activeReading;
+
+            // attempt a read
+            // read succeeded - display it
+
+            // Convert UID to String
+
+            String uidString = "";
+
+            for (byte i = 0; i < uidLength; i++)
             {
-                struct RFIDSensorReading *RFIDSensoractiveReading =
-                    (struct RFIDSensorReading *)RFIDSensor.activeReading;
-
-                // attempt a read
-                // read succeeded - display it
-
-                // Convert UID to String
-
-                String uidString = "";
-
-                for (byte i = 0; i < uidLength; i++)
+                if (uidReceivedBuffer[i] < 0x10)
                 {
-                    if (uidReceivedBuffer[i] < 0x10)
-                    {
-                        uidString += "0";
-                    }
-                    uidString += String(mfrc522->uid.uidByte[i], HEX);
+                    uidString += "0";
                 }
+                uidString += String(mfrc522->uid.uidByte[i], HEX);
+            }
 
-                size_t length = uidString.length();
+            size_t length = uidString.length();
 
-                char uidbuffer[length + 1]; // +1 for null terminator if needed
+            char uidbuffer[length + 1]; // +1 for null terminator if needed
 
-                for (size_t i = 0; i < length; ++i)
+            for (size_t i = 0; i < length; ++i)
+            {
+                uidbuffer[i] = static_cast<unsigned char>(uidString[i]);
+            }
+
+            uidbuffer[length] = '\0';
+
+            char *dest = RFIDSensoractiveReading->idString;
+
+            snprintf(dest, RFID_LENGTH - 1, "%s", uidbuffer);
+
+            RFIDSensoractiveReading->counter++;
+
+            sensorListener *pos = RFIDSensor.listeners;
+
+            Serial.printf("Got a card:%s\n", uidbuffer);
+
+            checkRFIDCard(uidbuffer);
+
+            RFIDSensor.millisAtLastReading = millis();
+
+            while (pos != NULL)
+            {
+                if (pos->config->sendOptionMask & RFIDSENSOR_SEND_ON_CARD_SCANNED)
                 {
-                    uidbuffer[i] = static_cast<unsigned char>(uidString[i]);
-                }
+                    // if the command has a value element we now need to take the element value and put
+                    // it into the command data for the message that is about to be received.
+                    // The command data value is always the first item in the parameter block
 
-                uidbuffer[length] = '\0';
+                    char *resultValue = RFIDSensoractiveReading->idString;
 
-                char *dest = RFIDSensoractiveReading->idString;
+                    char *messageBuffer = (char *)pos->config->optionBuffer + MESSAGE_START_POSITION;
+                    snprintf(messageBuffer, MAX_MESSAGE_LENGTH, "%s", resultValue);
 
-                snprintf(dest, RFID_LENGTH - 1, "%s", uidbuffer);
-
-                RFIDSensoractiveReading->counter++;
-
-                sensorListener *pos = RFIDSensor.listeners;
-
-                Serial.printf("Got a card:%s\n", uidbuffer);
-
-                checkRFIDCard(uidbuffer);
-
-                RFIDSensor.millisAtLastReading = millis();
-
-                while (pos != NULL)
-                {
-                    if (pos->config->sendOptionMask & RFIDSENSOR_SEND_ON_CARD_SCANNED)
-                    {
-                        // if the command has a value element we now need to take the element value and put
-                        // it into the command data for the message that is about to be received.
-                        // The command data value is always the first item in the parameter block
-
-                        char *resultValue = RFIDSensoractiveReading->idString;
-
-                        char *messageBuffer = (char *)pos->config->optionBuffer + MESSAGE_START_POSITION;
-                        snprintf(messageBuffer, MAX_MESSAGE_LENGTH, "%s", resultValue);
-
-                        pos->receiveMessage(pos->config->destination, pos->config->optionBuffer);
-                        pos->lastReadingMillis = RFIDSensor.millisAtLastReading;
-                        // move on to the next one
-                        pos = pos->nextMessageListener;
-                        continue;
-                    }
-
+                    pos->receiveMessage(pos->config->destination, pos->config->optionBuffer);
+                    pos->lastReadingMillis = RFIDSensor.millisAtLastReading;
                     // move on to the next one
                     pos = pos->nextMessageListener;
+                    continue;
                 }
+
+                // move on to the next one
+                pos = pos->nextMessageListener;
             }
             // clear the flag
             bNewInt = false;
@@ -434,6 +445,109 @@ void updateRFIDSensorReading()
         updateRFIDLight();
     }
 }
+
+#endif
+
+#if defined(WEMOSD1MINI)
+
+void updateRFIDSensorReading()
+{
+    if (RFIDSensor.status == RFID_CONNECTED)
+    {
+        if (bNewInt)
+        {
+            struct RFIDSensorReading *RFIDSensoractiveReading =
+                (struct RFIDSensorReading *)RFIDSensor.activeReading;
+
+            // Only trigger a read if we have a valid card
+            if (1)
+            {
+                // attempt a read
+                if (mfrc522->PICC_ReadCardSerial())
+                {
+                    // read succeeded - display it
+
+                    // Convert UID to String
+
+                    String uidString = "";
+
+                    for (byte i = 0; i < mfrc522->uid.size; i++)
+                    {
+                        if (mfrc522->uid.uidByte[i] < 0x10)
+                        {
+                            uidString += "0";
+                        }
+                        uidString += String(mfrc522->uid.uidByte[i], HEX);
+                    }
+
+                    size_t length = uidString.length();
+
+                    char uidbuffer[length + 1]; // +1 for null terminator if needed
+
+                    for (size_t i = 0; i < length; ++i)
+                    {
+                        uidbuffer[i] = static_cast<unsigned char>(uidString[i]);
+                    }
+
+                    uidbuffer[length] = '\0';
+
+                    char *dest = RFIDSensoractiveReading->idString;
+
+                    snprintf(dest, RFID_LENGTH - 1, "%s", uidbuffer);
+
+                    RFIDSensoractiveReading->counter++;
+
+                    sensorListener *pos = RFIDSensor.listeners;
+
+                    Serial.printf("Got a card:%s\n", uidbuffer);
+
+                    checkRFIDCard(uidbuffer);
+
+                    RFIDSensor.millisAtLastReading = millis();
+
+                    while (pos != NULL)
+                    {
+                        if (pos->config->sendOptionMask & RFIDSENSOR_SEND_ON_CARD_SCANNED)
+                        {
+                            // if the command has a value element we now need to take the element value and put
+                            // it into the command data for the message that is about to be received.
+                            // The command data value is always the first item in the parameter block
+
+                            char *resultValue = RFIDSensoractiveReading->idString;
+
+                            char *messageBuffer = (char *)pos->config->optionBuffer + MESSAGE_START_POSITION;
+                            snprintf(messageBuffer, MAX_MESSAGE_LENGTH, "%s", resultValue);
+
+                            pos->receiveMessage(pos->config->destination, pos->config->optionBuffer);
+                            pos->lastReadingMillis = RFIDSensor.millisAtLastReading;
+                            // move on to the next one
+                            pos = pos->nextMessageListener;
+                            continue;
+                        }
+
+                        // move on to the next one
+                        pos = pos->nextMessageListener;
+                    }
+                }
+            }
+
+            // clear the interrupt
+            clearInt();
+
+            // clear the flag
+            bNewInt = false;
+
+            // Halt PICC ready for the next card
+            mfrc522->PICC_HaltA();
+        }
+
+        updateRec();
+
+        updateRFIDLight();
+    }
+}
+
+#endif
 
 void stopRFIDSensor()
 {
