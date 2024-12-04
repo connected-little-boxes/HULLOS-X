@@ -24,10 +24,14 @@
 #define RFID_MESSAGE_BUFFER_SIZE 80
 #define RFID_MESSAGE_TOPIC "rfid"
 
+#define DRINK_RESET_KEY_LENGTH 15
+
 struct RFIDSensorSettings
 {
     bool RFIDFitted;
-    int millisBetweenUpdates;
+    bool DrinkMonitorActive;
+    char DrinkResetKey[DRINK_RESET_KEY_LENGTH];
+    bool RFIDmqttAlertActive;
 };
 
 #define RFID_LENGTH 20

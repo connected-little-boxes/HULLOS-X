@@ -14,7 +14,7 @@
 #include "console.h"
 #include "controller.h"
 #include <SPI.h>
-#include <MFRC522.h>
+#include "MFRC522.h"
 
 #if defined(ARDUINO_ARCH_ESP8266)
 #include "LittleFS.h"
@@ -37,9 +37,49 @@ struct SettingItem RFIDFittedSetting = {
     setFalse,
     validateYesNo};
 
+struct SettingItem RFIDdrinkMonitorSetting = {
+    "Drink monitoring active",
+    "rfiddrinkmonitor",
+    &RFIDSensorSettings.DrinkMonitorActive,
+    ONOFF_INPUT_LENGTH,
+    yesNo,
+    setFalse,
+    validateYesNo};
+
+struct SettingItem RFIDmqttActiveSetting = {
+    "Send MQTT messages from RFID",
+    "rfidmqttmessages",
+    &RFIDSensorSettings.RFIDmqttAlertActive,
+    ONOFF_INPUT_LENGTH,
+    yesNo,
+    setFalse,
+    validateYesNo};
+
+boolean validateDrinkResetKey(void *dest, const char *newValueStr)
+{
+    return (validateString((char *)dest, newValueStr, DRINK_RESET_KEY_LENGTH));
+}
+
+void setDefaultDrinkResetKey(void *dest)
+{
+    snprintf((char *)dest, DRINK_RESET_KEY_LENGTH, "set card key");
+}
+
+struct SettingItem RFIDdrinkResetKey = {
+    "RFID drink reset key",
+    "rfiddrinkresetkey",
+    RFIDSensorSettings.DrinkResetKey,
+    DRINK_RESET_KEY_LENGTH,
+    text,
+    setDefaultDrinkResetKey,
+    validateDrinkResetKey};
+
 struct SettingItem *RFIDSettingItemPointers[] =
     {
-        &RFIDFittedSetting};
+        &RFIDFittedSetting,
+        &RFIDdrinkMonitorSetting,
+        &RFIDdrinkResetKey,
+        &RFIDmqttActiveSetting};
 
 struct SettingItemCollection RFIDSensorSettingItems = {
     "RFIDSettings",
@@ -114,7 +154,6 @@ volatile uint8_t reg;
 
 // if the processor is not an ESP device the IRAM_ATTR symbol is defined as empty in utils.h
 
-
 #if defined(PICO)
 // maximum size is 10 according to the MFRC522 spec - so this should be fine
 
@@ -126,13 +165,14 @@ byte uidReceivedBuffer[UID_BUFFER_LENGTH];
 
 void IRAM_ATTR readCard()
 {
-    if(!bNewInt){
+    if (!bNewInt)
+    {
         if (mfrc522->PICC_ReadCardSerial())
         {
             // ignore repeated interrupts if they have not been handled
             bNewInt = true;
             uidLength = mfrc522->uid.size;
-            memcpy(uidReceivedBuffer,mfrc522->uid.uidByte,uidLength);
+            memcpy(uidReceivedBuffer, mfrc522->uid.uidByte, uidLength);
             mfrc522->PICC_HaltA();
         }
     }
@@ -149,7 +189,6 @@ void IRAM_ATTR readCard()
     reg = mfrc522->PCD_ReadRegister(MFRC522::Status1Reg);
 }
 #endif
-
 
 void activateRec()
 {
@@ -250,33 +289,35 @@ bool seenCardBefore(char *id)
 
 void checkRFIDCard(char *id)
 {
-    if (MQTTProcessDescriptor.status == MQTT_OK)
+    if (RFIDSensorSettings.RFIDmqttAlertActive)
     {
-        char messageBuffer[RFID_MESSAGE_BUFFER_SIZE];
-        char deviceNameBuffer[DEVICE_NAME_LENGTH];
-        PrintSystemDetails(deviceNameBuffer, DEVICE_NAME_LENGTH);
+        if (MQTTProcessDescriptor.status == MQTT_OK)
+        {
+            char messageBuffer[RFID_MESSAGE_BUFFER_SIZE];
+            char deviceNameBuffer[DEVICE_NAME_LENGTH];
+            PrintSystemDetails(deviceNameBuffer, DEVICE_NAME_LENGTH);
 
-        // send a message to indicate we have a card
-        snprintf(messageBuffer, RFID_MESSAGE_BUFFER_SIZE,
-                 "{\"device\":\"%s\",\"cardID\":\"%s\",\"type\":\"%s\"}",
-                 deviceNameBuffer,
-                 id,
-                 "drink");
+            // send a message to indicate we have a card
+            snprintf(messageBuffer, RFID_MESSAGE_BUFFER_SIZE,
+                     "{\"device\":\"%s\",\"cardID\":\"%s\",\"type\":\"%s\"}",
+                     deviceNameBuffer,
+                     id,
+                     "drink");
 
-        Serial.printf("Sending rfid: %s\n", messageBuffer);
-        
-        publishBufferToMQTTTopic(messageBuffer, RFID_MESSAGE_TOPIC);
+            Serial.printf("Sending rfid: %s\n", messageBuffer);
 
-        rfidLightStart = millis();
+            publishBufferToMQTTTopic(messageBuffer, RFID_MESSAGE_TOPIC);
 
+            rfidLightStart = millis();
+        }
     }
-    else
+    if (RFIDSensorSettings.DrinkMonitorActive)
     {
         // keep a counter array
 
         rfidLightStart = millis();
 
-        if (strcasecmp("9316a0f5", id) == 0)
+        if (strcasecmp(RFIDSensorSettings.DrinkResetKey, id) == 0)
         {
             act_onJson_message("{\"process\":\"pixels\",\"command\":\"setnamedcolour\",\"colourname\":\"white\"}", consumeRFIDJsonResult);
             clearCards();
@@ -328,7 +369,7 @@ void startRFIDSensor()
         SPI.setMISO(MISO_PIN);
         SPI.setMOSI(MOSI_PIN);
         SPI.setSCK(SCK);
-#endif        
+#endif
         SPI.begin(); // Init SPI bus
 
         if (mfrc522 == NULL)

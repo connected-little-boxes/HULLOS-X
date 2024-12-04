@@ -29,7 +29,13 @@ boolean validateWifiPWD(void *dest, const char *newValueStr)
 struct WifiConnectionSettings wifiConnectionSettings;
 
 struct SettingItem wifiOnOff = {
-	"Wifi on", "wifiactive", &wifiConnectionSettings.wiFiOn, YESNO_INPUT_LENGTH, yesNo, setTrue, validateYesNo};
+	"Wifi on", 
+	"wifiactive", 
+	&wifiConnectionSettings.wiFiOn, 
+	YESNO_INPUT_LENGTH, 
+	yesNo, 
+	setFalse, 
+	validateYesNo};
 
 void setDefaultWiFi1SSID(void *dest)
 {
@@ -130,6 +136,11 @@ int findWifiSetting(String ssidName)
 
 	for (unsigned int i = 0; i < sizeof(wifiSettings) / sizeof(struct WiFiSetting); i++)
 	{
+		if(wifiSettings[i].wifiSsid[0]==0){
+			// no WiFi setting here - ignore it
+			continue;
+		}
+		
 		if (strcasecmp(wifiSettings[i].wifiSsid, ssidBuffer) == 0)
 		{
 			return i;
