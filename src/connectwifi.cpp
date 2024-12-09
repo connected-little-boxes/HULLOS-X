@@ -140,7 +140,7 @@ int findWifiSetting(String ssidName)
 			// no WiFi setting here - ignore it
 			continue;
 		}
-		
+
 		if (strcasecmp(wifiSettings[i].wifiSsid, ssidBuffer) == 0)
 		{
 			return i;
@@ -528,7 +528,7 @@ bool connectWiFiStatusOK()
 }
 
 struct process WiFiProcessDescriptor = {
-	"WiFi",
+	"wifi",
 	initWifi,
 	startWifi,
 	updateWifi,

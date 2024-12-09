@@ -236,7 +236,7 @@ void startSensors()
 
 void dumpSensorStatus()
 {
-	alwaysDisplayMessage("Sensors");
+	alwaysDisplayMessage("Sensors\n");
 	unsigned long currentMillis = millis();
 
 	sensor *activeSensorPtr = activeSensorList;
@@ -246,8 +246,8 @@ void dumpSensorStatus()
 		activeSensorPtr->getStatusMessage(sensorStatusBuffer, SENSOR_STATUS_BUFFER_SIZE);
 		sensorValueBuffer[0] = 0; // empty the buffer string
 		activeSensorPtr->addReading(sensorValueBuffer, SENSOR_VALUE_BUFFER_SIZE);
-		alwaysDisplayMessage("    %s  %s Active time(microsecs): ",
-					  sensorStatusBuffer, sensorValueBuffer);
+		alwaysDisplayMessage("    %s:%s %s Active time(microsecs): ",
+					  activeSensorPtr->sensorName, sensorStatusBuffer, sensorValueBuffer);
 		alwaysDisplayMessage("%d",activeSensorPtr->activeTime);
 		alwaysDisplayMessage("  Millis since last reading: ");
 		alwaysDisplayMessage("%lu\n",ulongDiff(currentMillis, activeSensorPtr->millisAtLastReading));
@@ -325,7 +325,7 @@ void displaySensorStatus()
 
 void stopSensors()
 {
-	alwaysDisplayMessage("Stopping sensors");
+	alwaysDisplayMessage("Stopping sensors\n");
 
 	sensor *activeSensorPtr = activeSensorList;
 

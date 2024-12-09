@@ -623,7 +623,7 @@ void bme280SensorStatusMessage(char *buffer, int bufferLength)
 }
 
 struct sensor bme280Sensor = {
-	"BME280",
+	"bme280",
 	0, // millis at last reading
 	0, // reading number
 	0, // last transmitted reading number

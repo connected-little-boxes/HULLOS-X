@@ -164,7 +164,7 @@ void pirSensorTest()
 
 	pinMode(pirSensorSettings.pirSensorPinNo, INPUT);
 
-	displayMessage("PIR Sensor test\nPress the ESC key to end the test");
+	displayMessage("PIR Sensor test\nPress the ESC key to end the test\n");
 
 	int count = 0;
 	bool triggered = false;

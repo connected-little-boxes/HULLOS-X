@@ -43,91 +43,82 @@
 
 void populateProcessList()
 {
-#if defined(PROCESS_PIXELS)
-  addProcessToAllProcessList(&pixelProcess);
-#endif
-#if defined(PROCESS_STATUS_LED)
-  addProcessToAllProcessList(&statusLedProcess);
-#endif
-
-#if defined(PROCESS_INPUT_SWITCH)
-  addProcessToAllProcessList(&inputSwitchProcess);
-#endif
-
-#if defined(PROCESS_MESSAGES)
-  addProcessToAllProcessList(&messagesProcess);
-#endif
-
 #if defined(PROCESS_CONSOLE)
   addProcessToAllProcessList(&consoleProcessDescriptor);
 #endif
-
-#if defined(PROCESS_WIFI)
-  addProcessToAllProcessList(&WiFiProcessDescriptor);
-#endif
-
-#if defined(PROCESS_MQTT)
-  addProcessToAllProcessList(&MQTTProcessDescriptor);
-#endif
-
 #if defined(PROCESS_CONTROLLER)
   addProcessToAllProcessList(&controllerProcess);
-#endif
-
-#if defined(PROCESS_REGISTRATION)
-  addProcessToAllProcessList(&RegistrationProcess);
-#endif
-// Add the options
-#ifdef PROCESS_SERVO
-  addProcessToAllProcessList(&ServoProcess);
-#endif
-
-#ifdef PROCESS_MAX7219
-  addProcessToAllProcessList(&max7219MessagesProcess);
-#endif
-#ifdef PROCESS_PRINTER
-  addProcessToAllProcessList(&printerProcess);
 #endif
 #ifdef PROCESS_HULLOS
   addProcessToAllProcessList(&hullosProcess);
 #endif
+#if defined(PROCESS_INPUT_SWITCH)
+  addProcessToAllProcessList(&inputSwitchProcess);
+#endif
+#ifdef PROCESS_MAX7219
+  addProcessToAllProcessList(&max7219MessagesProcess);
+#endif
+#if defined(PROCESS_MESSAGES)
+  addProcessToAllProcessList(&messagesProcess);
+#endif
 #ifdef PROCESS_OUTPIN
   addProcessToAllProcessList(&outPinProcess);
 #endif
+#if defined(PROCESS_MQTT)
+  addProcessToAllProcessList(&MQTTProcessDescriptor);
+#endif
+#if defined(PROCESS_PIXELS)
+  addProcessToAllProcessList(&pixelProcess);
+#endif
+#ifdef PROCESS_PRINTER
+  addProcessToAllProcessList(&printerProcess);
+#endif
+#if defined(PROCESS_REGISTRATION)
+  addProcessToAllProcessList(&RegistrationProcess);
+#endif
 #ifdef PROCESS_ROBOT
   addProcessToAllProcessList(&robotProcess);
+#endif
+#ifdef PROCESS_SERVO
+  addProcessToAllProcessList(&ServoProcess);
+#endif
+#if defined(PROCESS_STATUS_LED)
+  addProcessToAllProcessList(&statusLedProcess);
+#endif
+#if defined(PROCESS_WIFI)
+  addProcessToAllProcessList(&WiFiProcessDescriptor);
 #endif
 }
 
 void populateSensorList()
 {
-#ifdef SENSOR_CLOCK
-  addSensorToAllSensorsList(&clockSensor);
-  addSensorToActiveSensorsList(&clockSensor);
-#endif
-#ifdef SENSOR_PIR
-  addSensorToAllSensorsList(&pirSensor);
-  addSensorToActiveSensorsList(&pirSensor);
+#ifdef SENSOR_BME280
+  addSensorToAllSensorsList(&bme280Sensor);
+  addSensorToActiveSensorsList(&bme280Sensor);
 #endif
 #ifdef SENSOR_BUTTON
   addSensorToAllSensorsList(&buttonSensor);
   addSensorToActiveSensorsList(&buttonSensor);
 #endif
-#ifdef SENSOR_ROTARY
-  addSensorToAllSensorsList(&rotarySensor);
-  addSensorToActiveSensorsList(&rotarySensor);
+#ifdef SENSOR_CLOCK
+  addSensorToAllSensorsList(&clockSensor);
+  addSensorToActiveSensorsList(&clockSensor);
 #endif
 #ifdef SENSOR_POT
   addSensorToAllSensorsList(&potSensor);
   addSensorToActiveSensorsList(&potSensor);
 #endif
-#ifdef SENSOR_BME280
-  addSensorToAllSensorsList(&bme280Sensor);
-  addSensorToActiveSensorsList(&bme280Sensor);
+#ifdef SENSOR_PIR
+  addSensorToAllSensorsList(&pirSensor);
+  addSensorToActiveSensorsList(&pirSensor);
 #endif
 #ifdef SENSOR_RFID
   addSensorToAllSensorsList(&RFIDSensor);
   addSensorToActiveSensorsList(&RFIDSensor);
+#endif
+#ifdef SENSOR_ROTARY
+  addSensorToAllSensorsList(&rotarySensor);
+  addSensorToActiveSensorsList(&rotarySensor);
 #endif
 }
 

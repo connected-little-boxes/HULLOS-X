@@ -110,7 +110,7 @@ void buttonSensorTest()
 		digitalWrite(buttonSensorSettings.buttonGroundPin, LOW);
 	}
 
-	alwaysDisplayMessage("Button Sensor test\nPress the ESC key to end the test");
+	alwaysDisplayMessage("Button Sensor test\nPress the ESC key to end the test\n");
 
 	int count = 0;
 	bool triggered = false;

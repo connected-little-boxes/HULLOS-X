@@ -164,7 +164,7 @@ void potSensorTest()
 	struct potSensorReading *potSensoractiveReading =
 		(struct potSensorReading *)potSensor.activeReading;
 
-	displayMessage("Pot Sensor test\nPress the ESC key to end the test");
+	displayMessage("Pot Sensor test\nPress the ESC key to end the test\n");
 
 	while (true)
 	{

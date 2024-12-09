@@ -569,7 +569,7 @@ void mqttStatusMessage(char *buffer, int bufferLength)
 }
 
 struct process MQTTProcessDescriptor = {
-	"MQTT",
+	"mqtt",
 	initMQTT,
 	startMQTT,
 	updateMQTT,

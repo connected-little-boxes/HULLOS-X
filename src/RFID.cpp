@@ -240,18 +240,11 @@ unsigned long rfidLightStart = 0;
 
 void clearCards()
 {
-    if (MQTTProcessDescriptor.status == MQTT_OK)
-    {
-        // send a message to indicate we have a card
-    }
-    else
-    {
-        Serial.println("Clearing cards\n");
+    Serial.println("Clearing cards\n");
 
-        for (int cardNo = 0; cardNo < NO_OF_CARDS; cardNo++)
-        {
-            seenCards[cardNo][0] = 0;
-        }
+    for (int cardNo = 0; cardNo < NO_OF_CARDS; cardNo++)
+    {
+        seenCards[cardNo][0] = 0;
     }
 }
 
@@ -338,11 +331,7 @@ void checkRFIDCard(char *id)
 
 void updateRFIDLight()
 {
-    if (MQTTProcessDescriptor.status == MQTT_OK)
-    {
-        // send a message to indicate we have a card
-    }
-    else
+    if (RFIDSensorSettings.DrinkMonitorActive)
     {
         if (rfidLightStart != 0)
         {

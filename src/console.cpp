@@ -106,37 +106,43 @@ char consoleMessageBuffer[CONSOLE_MESSAGE_SIZE];
 
 void doStartWebServer(char *commandLine)
 {
+#if defined(SETTINGS_WEB_SERVER)
 	internalReboot(CONFIG_HOST_BOOT_NO_TIMEOUT_MODE);
+#else
+	alwaysDisplayMessage("The settings web server not installed on this box");
+#endif
 }
 
 void doDumpStatus(char *commandLine)
 {
 	dumpSensorStatus();
 	dumpProcessStatus();
-	alwaysDisplayMessage("Heap: ");
 
 #if defined(ARDUINO_ARCH_ESP8266)
 
-	alwaysDisplayMessage("%u",ESP.getFreeHeap());
+	alwaysDisplayMessage("Heap: ");
+	alwaysDisplayMessage("%u\n",ESP.getFreeHeap());
 
 #endif
 
 #if defined(ARDUINO_ARCH_ESP32)
-	alwaysDisplayMessage("%u",ESP.getFreeHeap());
+	alwaysDisplayMessage("Heap: ");
+	alwaysDisplayMessage("%u\n",ESP.getFreeHeap());
 #endif
 
 }
 
 void doRestart(char *commandLine)
 {
-	alwaysDisplayMessage("done");
-	delay(2000);
+	alwaysDisplayMessage("Restarting...");
 	saveSettings();
+	delay(2000);
 	internalReboot(COLD_BOOT_MODE);
 }
 
 void doClear(char *commandLine)
 {
+	alwaysDisplayMessage("Clearing settings and restarting...");
 	resetSettings();
 	saveSettings();
 	internalReboot(COLD_BOOT_MODE);
@@ -377,6 +383,8 @@ void doDumpStorage(char *commandLine)
 	PrintStorage();
 }
 
+#if defined(WEMOSD1MINI) || defined(ESP32DOIT)
+
 void doOTAUpdate(char *commandLine)
 {
 	if (needWifiConfigBootMode())
@@ -387,6 +395,7 @@ void doOTAUpdate(char *commandLine)
 
 	requestOTAUpate();
 }
+#endif
 
 void doColourDisplay(char *commandLine)
 {
@@ -585,6 +594,18 @@ void doDeleteCommand(char *commandLine)
 	deleteFileInStore(filename);
 }
 
+#ifdef PICO
+
+void doFirmwareUpgradeReset(char *commandLine)
+{
+	alwaysDisplayMessage("Booting into USB drive mode for firmware update...");
+	saveSettings();
+	delay(2000);
+	reset_usb_boot(1, 0);
+}
+
+#endif
+
 struct consoleCommand userCommands[] =
 	{
 #ifdef SENSOR_BUTTON
@@ -593,24 +614,32 @@ struct consoleCommand userCommands[] =
 		{"clearalllisteners", "clear all the command listeners", doClearAllListeners},
 		{"clear", "clear all settings and restart the device", doClear},
 		{"clearsensorlisteners", "clear the command listeners for a sensor", doClearSensorListeners},
+#ifdef PROCESS_PIXELS		
 		{"colours", "step through all the colours", doColourDisplay},
+#endif
 		{"commands", "show all the remote commands", doShowRemoteCommandsText},
 		{"commandsjson", "show all the remote commands in json", doShowRemoteCommandsJson},
 		{"deletecommand", "delete the named command", doDeleteCommand},
 		{"dump", "dump all the setting values", doDumpSettings},
 		{"help", "show all the commands", doHelp},
+#ifdef SETTINGS_WEB_SERVER
 		{"host", "start the configuration web host", doStartWebServer},
+#endif
 		{"hullos", "HullOS commands", doHullOS},
 		{"listeners", "list the command listeners", doDumpListeners},
 		{"help", "show all the commands", doHelp},
+#if defined(WEMOSD1MINI) || defined(ESP32DOIT)
 		{"otaupdate", "start an over-the-air firmware update", doOTAUpdate},
+#endif
 #ifdef SENSOR_PIR
 		{"pirtest", "test the PIR sensor", doTestPIRSensor},
 #endif
 #ifdef SENSOR_POT
 		{"pottest", "test the pot sensor", doTestPotSensor},
 #endif
+#ifdef SENSOR_RFID
 		{"rfidtest", "test the RFID sensor", doTestRFIDSensor},
+#endif
 #ifdef SENSOR_ROTARY
 		{"rotarytest", "test the rotary sensor", doTestRotarySensor},
 #endif
@@ -619,10 +648,15 @@ struct consoleCommand userCommands[] =
 		{"sensors", "list all the sensor triggers", doShowSensorsText},
 		{"sensorsjson", "list all the sensor triggers in json", doShowSensorsJson},
 		{"settings", "show all the setting values", doShowSettings},
+#ifdef PROCESS_PIXELS		
 		{"sprites", "dump sprite data", doDumpSprites},
+#endif
 		{"status", "show the sensor status", doDumpStatus},
 		{"stores", "dump all the command stores", doDumpStores},
 		{"storage", "show the storage use of sensors and processes", doDumpStorage},
+#ifdef PICO
+		{"upgrade", "resets the PICO into firmware update mode", doFirmwareUpgradeReset},
+#endif
 };
 
 void doHelp(char *commandLine)
