@@ -883,9 +883,9 @@ void PrintAllSettings()
 	PrintSystemDetails(deviceNameBuffer, DEVICE_NAME_LENGTH);
 
 	alwaysDisplayMessage(deviceNameBuffer);
-	alwaysDisplayMessage("Sensors\n");
+	alwaysDisplayMessage("\n\nSensors\n");
 	iterateThroughSensorSettingCollections(PrintSettingCollection);
-	alwaysDisplayMessage("Processes\n");
+	alwaysDisplayMessage("\nProcesses\n");
 	iterateThroughProcessSettingCollections(PrintSettingCollection);
 }
 
@@ -895,9 +895,9 @@ void PrintSomeSettings(char *filter)
 	char deviceNameBuffer[DEVICE_NAME_LENGTH];
 	PrintSystemDetails(deviceNameBuffer, DEVICE_NAME_LENGTH);
 	alwaysDisplayMessage(deviceNameBuffer);
-	alwaysDisplayMessage("Sensors\n");
+	alwaysDisplayMessage("\n\nSensors\n");
 	iterateThroughSensorSettingCollections(PrintSettingCollectionFiltered);
-	alwaysDisplayMessage("Processes\n");
+	alwaysDisplayMessage("\nProcesses\n");
 	iterateThroughProcessSettingCollections(PrintSettingCollectionFiltered);
 }
 

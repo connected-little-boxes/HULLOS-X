@@ -44,6 +44,8 @@ struct RFIDSensorReading {
 void pollRFID();
 void testRFID();
 
+void doRFIDSetupDrinksResetCard(char * command);
+
 extern struct RFIDSensorSettings RFIDSensorSettings;
 
 extern struct SettingItemCollection RFIDSettingItems;

@@ -218,7 +218,7 @@ char sensorValueBuffer[SENSOR_VALUE_BUFFER_SIZE];
 
 void startSensors()
 {
-	alwaysDisplayMessage("Starting sensors");
+	alwaysDisplayMessage("Starting sensors\n");
 	// start all the sensor managers
 
 	sensor *activeSensorPtr = activeSensorList;

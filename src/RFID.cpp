@@ -226,7 +226,22 @@ void clearInt()
 
 void consumeRFIDJsonResult(char *resultText)
 {
-    Serial.printf("     %s\n", resultText);
+    // remove the comment to see what the result is - otherwise ignore
+    // Serial.printf("     %s\n", resultText);
+}
+
+bool settingDrinksResetCard = false;
+
+void doRFIDSetupDrinksResetCard(char * command)
+{
+    alwaysDisplayMessage("\nSetting up drinks clear card\n");
+    if(!RFIDSensorSettings.DrinkMonitorActive){
+        alwaysDisplayMessage("\nTurn on drink monitoring (rfiddrinkmonitor=yes) before using this command\n");
+        return;
+    }
+
+    act_onJson_message("{\"process\":\"pixels\",\"command\":\"setnamedcolour\",\"colourname\":\"white\"}", consumeRFIDJsonResult);
+    settingDrinksResetCard=true;
 }
 
 #define CARD_ID_LENGTH 9
@@ -304,9 +319,19 @@ void checkRFIDCard(char *id)
             rfidLightStart = millis();
         }
     }
+
     if (RFIDSensorSettings.DrinkMonitorActive)
     {
         // keep a counter array
+
+        if(settingDrinksResetCard){
+            strcpy(RFIDSensorSettings.DrinkResetKey,id);
+            saveSettings();
+            act_onJson_message("{\"process\":\"pixels\",\"command\":\"setnamedcolour\",\"colourname\":\"blue\"}", consumeRFIDJsonResult);
+            alwaysDisplayMessage("\nDrink reset card set\n");
+            settingDrinksResetCard=false;
+            return;
+        }
 
         rfidLightStart = millis();
 
@@ -346,7 +371,10 @@ void updateRFIDLight()
 
 void startRFIDSensor()
 {
+    settingDrinksResetCard=false;
+
     clearCards();
+
     if (RFIDSensor.activeReading == NULL)
     {
         RFIDSensor.activeReading = new RFIDSensorReading();
@@ -390,6 +418,7 @@ void startRFIDSensor()
         RFIDSensor.status = RFID_NOT_FITTED;
     }
 }
+
 
 #if defined(PICO)
 

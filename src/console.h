@@ -35,6 +35,7 @@ struct consoleCommand {
 	char * name;
 	char * commandDescription;
 	void(*actOnCommand)(char * commandLine);
+	char * ownerName;
 };
 
 

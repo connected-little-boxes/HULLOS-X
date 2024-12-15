@@ -648,6 +648,10 @@ struct consoleCommand userCommands[] =
 		{"sensors", "list all the sensor triggers", doShowSensorsText},
 		{"sensorsjson", "list all the sensor triggers in json", doShowSensorsJson},
 		{"settings", "show all the setting values", doShowSettings},
+#ifdef SENSOR_RFID
+		{"setdrinksresetcard", "setup the drinks reset card", doRFIDSetupDrinksResetCard},
+#endif
+
 #ifdef PROCESS_PIXELS		
 		{"sprites", "dump sprite data", doDumpSprites},
 #endif
