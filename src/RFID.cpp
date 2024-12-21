@@ -55,31 +55,112 @@ struct SettingItem RFIDmqttActiveSetting = {
     setFalse,
     validateYesNo};
 
-boolean validateDrinkResetKey(void *dest, const char *newValueStr)
+boolean validateRFIDCardID(void *dest, const char *newValueStr)
 {
-    return (validateString((char *)dest, newValueStr, DRINK_RESET_KEY_LENGTH));
+    return (validateString((char *)dest, newValueStr, RFID_KEY_LENGTH));
 }
 
-void setDefaultDrinkResetKey(void *dest)
+void setDefaultRFIDKey(void *dest)
 {
-    snprintf((char *)dest, DRINK_RESET_KEY_LENGTH, "set card key");
+    snprintf((char *)dest, RFID_KEY_LENGTH, "set card key");
 }
 
 struct SettingItem RFIDdrinkResetKey = {
     "RFID drink reset key",
     "rfiddrinkresetkey",
     RFIDSensorSettings.DrinkResetKey,
-    DRINK_RESET_KEY_LENGTH,
+    RFID_KEY_LENGTH,
     text,
-    setDefaultDrinkResetKey,
-    validateDrinkResetKey};
+    setDefaultRFIDKey,
+    validateRFIDCardID};
 
+struct SettingItem RFIDCard1Key = {
+    "RFID card 1 key",
+    "rfidcard1key",
+    RFIDSensorSettings.Card1Key,
+    RFID_KEY_LENGTH,
+    text,
+    setDefaultRFIDKey,
+    validateRFIDCardID};
+
+struct SettingItem RFIDCard2Key = {
+    "RFID card 2 key",
+    "rfidcard2key",
+    RFIDSensorSettings.Card2Key,
+    RFID_KEY_LENGTH,
+    text,
+    setDefaultRFIDKey,
+    validateRFIDCardID};
+
+struct SettingItem RFIDCard3Key = {
+    "RFID card 3 key",
+    "rfidcard3key",
+    RFIDSensorSettings.Card3Key,
+    RFID_KEY_LENGTH,
+    text,
+    setDefaultRFIDKey,
+    validateRFIDCardID};
+
+struct SettingItem RFIDCard4Key = {
+    "RFID card 4 key",
+    "rfidcard4key",
+    RFIDSensorSettings.Card4Key,
+    RFID_KEY_LENGTH,
+    text,
+    setDefaultRFIDKey,
+    validateRFIDCardID};
+
+struct SettingItem RFIDCard5Key = {
+    "RFID card 5 key",
+    "rfidcard5key",
+    RFIDSensorSettings.Card5Key,
+    RFID_KEY_LENGTH,
+    text,
+    setDefaultRFIDKey,
+    validateRFIDCardID};
+
+struct SettingItem RFIDCard6Key = {
+    "RFID card 6 key",
+    "rfidcard6key",
+    RFIDSensorSettings.Card6Key,
+    RFID_KEY_LENGTH,
+    text,
+    setDefaultRFIDKey,
+    validateRFIDCardID};
+
+struct SettingItem RFIDCard7Key = {
+    "RFID card 7 key",
+    "rfidcard37ey",
+    RFIDSensorSettings.Card7Key,
+    RFID_KEY_LENGTH,
+    text,
+    setDefaultRFIDKey,
+    validateRFIDCardID};
+
+struct SettingItem RFIDCard8Key = {
+    "RFID card 8 key",
+    "rfidcard8key",
+    RFIDSensorSettings.Card8Key,
+    RFID_KEY_LENGTH,
+    text,
+    setDefaultRFIDKey,
+    validateRFIDCardID};
+ 
 struct SettingItem *RFIDSettingItemPointers[] =
     {
         &RFIDFittedSetting,
         &RFIDdrinkMonitorSetting,
         &RFIDdrinkResetKey,
-        &RFIDmqttActiveSetting};
+        &RFIDmqttActiveSetting,
+        &RFIDCard1Key,
+        &RFIDCard2Key,
+        &RFIDCard3Key,
+        &RFIDCard4Key,
+        &RFIDCard5Key,
+        &RFIDCard6Key,
+        &RFIDCard7Key,
+        &RFIDCard8Key
+        };
 
 struct SettingItemCollection RFIDSensorSettingItems = {
     "RFIDSettings",
@@ -88,7 +169,16 @@ struct SettingItemCollection RFIDSensorSettingItems = {
     sizeof(RFIDSettingItemPointers) / sizeof(struct SettingItem *)};
 
 struct sensorEventBinder RFIDSensorListenerFunctions[] = {
-    {"card", RFIDSENSOR_SEND_ON_CARD_SCANNED}};
+    {"card", RFIDSENSOR_SEND_ON_CARD_SCANNED},
+    {"card1", RFIDSENSOR_SEND_ON_CARD1_SCANNED},
+    {"card2", RFIDSENSOR_SEND_ON_CARD2_SCANNED},
+    {"card3", RFIDSENSOR_SEND_ON_CARD3_SCANNED},
+    {"card4", RFIDSENSOR_SEND_ON_CARD4_SCANNED},
+    {"card5", RFIDSENSOR_SEND_ON_CARD5_SCANNED},
+    {"card6", RFIDSENSOR_SEND_ON_CARD6_SCANNED},
+    {"card7", RFIDSENSOR_SEND_ON_CARD7_SCANNED},
+    {"card8", RFIDSENSOR_SEND_ON_CARD8_SCANNED}
+    };
 
 MFRC522 *mfrc522 = NULL; // Create MFRC522 reference
 
@@ -420,6 +510,57 @@ void startRFIDSensor()
 }
 
 
+void RFIDsendToListener(struct RFIDSensorReading *RFIDSensoractiveReading, sensorListener *pos){
+    // if the command has a value element we now need to take the element value and put
+    // it into the command data for the message that is about to be received.
+    // The command data value is always the first item in the parameter block
+
+    char *resultValue = RFIDSensoractiveReading->idString;
+
+    char *messageBuffer = (char *)pos->config->optionBuffer + MESSAGE_START_POSITION;
+    snprintf(messageBuffer, MAX_MESSAGE_LENGTH, "%s", resultValue);
+
+    pos->receiveMessage(pos->config->destination, pos->config->optionBuffer);
+    pos->lastReadingMillis = RFIDSensor.millisAtLastReading;
+}
+
+void sendRFIDtagToListeners()
+{
+    struct RFIDSensorReading *RFIDSensoractiveReading =
+                (struct RFIDSensorReading *)RFIDSensor.activeReading;
+
+    sensorListener *pos = RFIDSensor.listeners;
+
+    while (pos != NULL)
+    {
+        switch(pos->config->sendOption){
+
+        case RFIDSENSOR_SEND_ON_CARD_SCANNED:
+            RFIDsendToListener(RFIDSensoractiveReading,pos);
+            break;
+
+        case RFIDSENSOR_SEND_ON_CARD1_SCANNED:
+            Serial.printf("**** Comparing reading %s with stored %s\n",RFIDSensoractiveReading->idString,RFIDSensorSettings.Card1Key );
+            if (strcasecmp(RFIDSensoractiveReading->idString, RFIDSensorSettings.Card1Key) == 0)
+            {
+                RFIDsendToListener(RFIDSensoractiveReading,pos);
+            }
+            break;
+
+        case RFIDSENSOR_SEND_ON_CARD2_SCANNED:
+            Serial.printf("**** Comparing reading %s with stored %s\n",RFIDSensoractiveReading->idString,RFIDSensorSettings.Card2Key );
+            if (strcasecmp(RFIDSensoractiveReading->idString, RFIDSensorSettings.Card2Key) == 0)
+            {
+                RFIDsendToListener(RFIDSensoractiveReading,pos);
+            }
+            break;
+
+        }
+        // move on to the next one
+        pos = pos->nextMessageListener;
+    }
+}
+
 #if defined(PICO)
 
 void updateRFIDSensorReading()
@@ -472,29 +613,8 @@ void updateRFIDSensorReading()
 
             RFIDSensor.millisAtLastReading = millis();
 
-            while (pos != NULL)
-            {
-                if (pos->config->sendOptionMask & RFIDSENSOR_SEND_ON_CARD_SCANNED)
-                {
-                    // if the command has a value element we now need to take the element value and put
-                    // it into the command data for the message that is about to be received.
-                    // The command data value is always the first item in the parameter block
+            sendRFIDtagToListeners();
 
-                    char *resultValue = RFIDSensoractiveReading->idString;
-
-                    char *messageBuffer = (char *)pos->config->optionBuffer + MESSAGE_START_POSITION;
-                    snprintf(messageBuffer, MAX_MESSAGE_LENGTH, "%s", resultValue);
-
-                    pos->receiveMessage(pos->config->destination, pos->config->optionBuffer);
-                    pos->lastReadingMillis = RFIDSensor.millisAtLastReading;
-                    // move on to the next one
-                    pos = pos->nextMessageListener;
-                    continue;
-                }
-
-                // move on to the next one
-                pos = pos->nextMessageListener;
-            }
             // clear the flag
             bNewInt = false;
         }
@@ -556,7 +676,7 @@ void updateRFIDSensorReading()
 
                     RFIDSensoractiveReading->counter++;
 
-                    sensorListener *pos = RFIDSensor.listeners;
+                    sendRFIDtagToListeners();
 
                     Serial.printf("Got a card:%s\n", uidbuffer);
 
@@ -564,29 +684,7 @@ void updateRFIDSensorReading()
 
                     RFIDSensor.millisAtLastReading = millis();
 
-                    while (pos != NULL)
-                    {
-                        if (pos->config->sendOptionMask & RFIDSENSOR_SEND_ON_CARD_SCANNED)
-                        {
-                            // if the command has a value element we now need to take the element value and put
-                            // it into the command data for the message that is about to be received.
-                            // The command data value is always the first item in the parameter block
-
-                            char *resultValue = RFIDSensoractiveReading->idString;
-
-                            char *messageBuffer = (char *)pos->config->optionBuffer + MESSAGE_START_POSITION;
-                            snprintf(messageBuffer, MAX_MESSAGE_LENGTH, "%s", resultValue);
-
-                            pos->receiveMessage(pos->config->destination, pos->config->optionBuffer);
-                            pos->lastReadingMillis = RFIDSensor.millisAtLastReading;
-                            // move on to the next one
-                            pos = pos->nextMessageListener;
-                            continue;
-                        }
-
-                        // move on to the next one
-                        pos = pos->nextMessageListener;
-                    }
+                    sendRFIDtagToListeners();
                 }
             }
 

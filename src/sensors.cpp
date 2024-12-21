@@ -476,8 +476,8 @@ void fireSensorListenersOnTrigger(struct sensor *sensor, int trigger)
 
 	while (pos != NULL)
 	{
-		//messageLogf("        Listener:%s sendoption:%d\n", pos->config->listenerName, pos->config->sendOptionMask);
-		if (pos->config->sendOptionMask == trigger)
+		//messageLogf("        Listener:%s sendoption:%d\n", pos->config->listenerName, pos->config->sendOption);
+		if (pos->config->sendOption == trigger)
 		{
 			//messageLogf("Got a match");
 			// dumpCommand(pos->config->commandProcess, pos->config->commandName, pos->config->optionBuffer);

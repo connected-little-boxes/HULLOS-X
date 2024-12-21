@@ -133,7 +133,7 @@ void updatePOTSensor()
 
 	while (pos != NULL)
 	{
-		if (pos->config->sendOptionMask & POTSENSOR_SEND_ON_POS_CHANGE)
+		if (pos->config->sendOption & POTSENSOR_SEND_ON_POS_CHANGE)
 		{
 			// if the command has a value element we now need to take the element value and put
 			// it into the command data for the message that is about to be received.

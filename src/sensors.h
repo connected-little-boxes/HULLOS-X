@@ -27,8 +27,11 @@ struct sensorListenerConfiguration{
 	char sensorName [SENSOR_NAME_LENGTH];   // name of the sensor providing the command
 	char destination [DESTINATION_NAME_LENGTH];  // destination field, usually used for MQTT publishing
 	unsigned char optionBuffer [OPTION_STORAGE_SIZE];
-	int sendOptionMask;                             // mask of bits that determine when a sensor will deliver to the listener
-	                                                // the bits are different for each sensor
+	int sendOption;                             // send option - might be a mask of bits or a value 
+	                                            // that determines when a sensor will deliver to the listener
+	                                        	// the bits are different for each sensor
+												// some sensors have multiple behaviours for a single mask value
+												// for others it is not meaningful to do this
 };
 
 struct sensorListener{

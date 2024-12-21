@@ -37,7 +37,7 @@ void resetListenerConfiguration(sensorListenerConfiguration *item)
 	item->sensorName[0] = 0;
 	item->listenerName[0] = 0;
 	item->destination[0] = 0;
-	item->sendOptionMask = 0;
+	item->sendOption = 0;
 }
 
 void printListenerConfiguration(sensorListenerConfiguration *item)
@@ -52,7 +52,7 @@ void printListenerConfiguration(sensorListenerConfiguration *item)
 			return;
 		}
 
-		struct sensorEventBinder *binder = findSensorEventBinderByTrigger(s, item->sendOptionMask);
+		struct sensorEventBinder *binder = findSensorEventBinderByTrigger(s, item->sendOption);
 
 		if (item->destination[0] == 0)
 		{
@@ -678,14 +678,14 @@ int CreateSensorListener(
 		strcpy(dest->listenerName, targetListener->listenerName);
 		strcpy(dest->sensorName, targetSensor->sensorName);
 		strcpy(dest->destination, destination);
-		dest->sendOptionMask = targetListener->trigger;
+		dest->sendOption = targetListener->trigger;
 
 		// copy the command options into the new listener config slot
 
 		memcpy(dest->optionBuffer, commandParameterBuffer, OPTION_STORAGE_SIZE);
 
 		// set the sensor option mask for this listener
-		dest->sendOptionMask = targetListener->trigger;
+		dest->sendOption = targetListener->trigger;
 
 		// make a new listener
 
@@ -714,7 +714,7 @@ int CreateSensorListener(
 		// just copy the incoming command into the storage as the listener is already active
 		memcpy(dest->optionBuffer, commandParameterBuffer, OPTION_STORAGE_SIZE);
 		// set the sensor option mask for this listener
-		dest->sendOptionMask = targetListener->trigger;
+		dest->sendOption = targetListener->trigger;
 	}
 
 	saveSettings();

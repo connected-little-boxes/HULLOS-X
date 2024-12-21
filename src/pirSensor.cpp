@@ -112,7 +112,7 @@ void updatePIRSensor()
 	{
 		struct sensorListenerConfiguration *config = pos->config;
 
-		if (config->sendOptionMask & PIRSENSOR_SEND_ON_CHANGE)
+		if (config->sendOption & PIRSENSOR_SEND_ON_CHANGE)
 		{
 			unsigned char *optionBuffer = pos->config->optionBuffer;
 			putUnalignedFloat(pirSensoractiveReading->triggered, (unsigned char *)optionBuffer);
@@ -132,7 +132,7 @@ void updatePIRSensor()
 			continue;
 		}
 
-		if (config->sendOptionMask & PIRSENSOR_SEND_ON_TRIGGERED)
+		if (config->sendOption & PIRSENSOR_SEND_ON_TRIGGERED)
 		{
 			if (pirSensoractiveReading->triggered)
 			{
@@ -143,7 +143,7 @@ void updatePIRSensor()
 			}
 		}
 
-		if (config->sendOptionMask & PIRSENSOR_SEND_ON_CLEAR)
+		if (config->sendOption & PIRSENSOR_SEND_ON_CLEAR)
 		{
 			if (!pirSensoractiveReading->triggered)
 			{

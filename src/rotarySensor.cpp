@@ -212,7 +212,7 @@ void updateROTARYSensor()
 		if (previousPressed != rotarySensoractiveReading->pressed)
 		{
 
-			if (pos->config->sendOptionMask & ROTARYSENSOR_SEND_ON_PRESSED)
+			if (pos->config->sendOption & ROTARYSENSOR_SEND_ON_PRESSED)
 			{
 				// send on pressed - is the button pressed now?
 				if (rotarySensoractiveReading->pressed)
@@ -225,7 +225,7 @@ void updateROTARYSensor()
 				}
 			}
 
-			if (pos->config->sendOptionMask & ROTARYSENSOR_SEND_ON_RELEASED)
+			if (pos->config->sendOption & ROTARYSENSOR_SEND_ON_RELEASED)
 			{
 				// send on released - is the button released now?
 				if (!rotarySensoractiveReading->pressed)
@@ -239,7 +239,7 @@ void updateROTARYSensor()
 			}
 		}
 
-		if (pos->config->sendOptionMask & ROTARYSENSOR_SEND_ON_COUNT_CHANGE)
+		if (pos->config->sendOption & ROTARYSENSOR_SEND_ON_COUNT_CHANGE)
 		{
 			if (rotarySensoractiveReading->counter != previousCounter)
 			{

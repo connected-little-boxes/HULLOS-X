@@ -362,7 +362,7 @@ void sendToBME280SensorListeners(int event, int sensorNo)
 	while (pos != NULL)
 	{
 		struct sensorListenerConfiguration *config = pos->config;
-		int configMask = config->sendOptionMask;
+		int configMask = config->sendOption;
 
 		if ((configMask & BME280_EVENT_MASK) == event)
 		{
@@ -391,7 +391,7 @@ void sendToBME280SensorListeners(int event)
 	while (pos != NULL)
 	{
 		struct sensorListenerConfiguration *config = pos->config;
-		int configMask = config->sendOptionMask;
+		int configMask = config->sendOption;
 		TRACELOG(" checking listener with ");
 		TRACE_HEXLN(configMask);
 

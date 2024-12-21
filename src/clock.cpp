@@ -514,7 +514,7 @@ void checkClock(struct clockReading *reading)
 	{
 		char *messageBuffer = (char *)pos->config->optionBuffer + MESSAGE_START_POSITION;
 
-		if (pos->config->sendOptionMask == CLOCK_SECOND_TICK)
+		if (pos->config->sendOption == CLOCK_SECOND_TICK)
 		{
 			TRACELOGLN("Second Tick");
 			snprintf(messageBuffer, MAX_MESSAGE_LENGTH, "%02d:%02d:%02d",
@@ -524,7 +524,7 @@ void checkClock(struct clockReading *reading)
 			pos->receiveMessage(pos->config->destination, pos->config->optionBuffer);
 		}
 
-		if (pos->config->sendOptionMask == CLOCK_MINUTE_TICK)
+		if (pos->config->sendOption == CLOCK_MINUTE_TICK)
 		{
 			if (lastClockMinute != reading->minute)
 			{
@@ -535,7 +535,7 @@ void checkClock(struct clockReading *reading)
 			}
 		}
 
-		if (pos->config->sendOptionMask == CLOCK_HOUR_TICK)
+		if (pos->config->sendOption == CLOCK_HOUR_TICK)
 		{
 			if (lastClockHour != reading->hour)
 			{
@@ -546,7 +546,7 @@ void checkClock(struct clockReading *reading)
 			}
 		}
 
-		if (pos->config->sendOptionMask == CLOCK_DAY_TICK)
+		if (pos->config->sendOption == CLOCK_DAY_TICK)
 		{
 			if (lastClockDay != reading->day)
 			{
