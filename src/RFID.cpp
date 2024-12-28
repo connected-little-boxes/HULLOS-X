@@ -130,7 +130,7 @@ struct SettingItem RFIDCard6Key = {
 
 struct SettingItem RFIDCard7Key = {
     "RFID card 7 key",
-    "rfidcard37ey",
+    "rfidcard7key",
     RFIDSensorSettings.Card7Key,
     RFID_KEY_LENGTH,
     text,
@@ -397,10 +397,9 @@ void checkRFIDCard(char *id)
 
             // send a message to indicate we have a card
             snprintf(messageBuffer, RFID_MESSAGE_BUFFER_SIZE,
-                     "{\"device\":\"%s\",\"cardID\":\"%s\",\"type\":\"%s\"}",
+                     "{\"device\":\"%s\",\"cardID\":\"%s\"}",
                      deviceNameBuffer,
-                     id,
-                     "drink");
+                     id);
 
             Serial.printf("Sending rfid: %s\n", messageBuffer);
 
