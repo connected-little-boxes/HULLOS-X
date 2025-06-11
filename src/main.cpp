@@ -37,7 +37,17 @@
 #include "outpin.h"
 #include "robotProcess.h"
 #include "RFID.h"
+#include "Motors.h"
 
+void setup1()
+{
+
+}
+
+void loop1()
+{
+  updateMotorsCore1();
+}
 
 // This function will be different for each build of the device.
 
@@ -87,6 +97,9 @@ void populateProcessList()
 #endif
 #if defined(PROCESS_WIFI)
   addProcessToAllProcessList(&WiFiProcessDescriptor);
+#endif
+#if defined(PROCESS_MOTOR)
+  addProcessToAllProcessList(&motorProcessDescriptor);
 #endif
 }
 

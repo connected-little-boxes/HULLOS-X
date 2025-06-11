@@ -29,8 +29,6 @@
 #define PIXEL_COMMAND_NAME_LENGTH 20
 #define PIXEL_COLOUR_NAME_LENGTH 15
 
-
-
 enum PixelStatusLevels
 {
 	PIXEL_STATUS_OK,

@@ -491,7 +491,7 @@ void dumpFilesInStores()
 	dir.close();
 }
 
-void deleteFileInStore(char *deleteName)
+void  deleteFileInStore(char *deleteName)
 {
 	alwaysDisplayMessage("Deleting file:%s\n", deleteName);
 
