@@ -895,22 +895,25 @@ void setVariable()
 void viewVariable()
 {
 	int position;
-	if (findVariable(decodePos, &position) == VARIABLE_NOT_FOUND)
-	{
-		if (diagnosticsOutputLevel & STATEMENT_CONFIRMATION)
+	
+	switch (findVariable(decodePos, &position)){
+
+	case VARIABLE_NOT_FOUND:
+		Serial.println(F("VV variable not found"));
+		return;
+
+	case INVALID_VARIABLE_NAME:
+		Serial.println(F("VV invalid variable name"));
+		return;
+
+	case OPERAND_OK:
+		if (!isAssigned(position))
 		{
-			displayMessage("VV variable not found");
-			return;
+			Serial.println(F("Unassigned"));
+		}
+		else
+		{
+			Serial.printf("Variable has value: %d\n", getVariable(position));
 		}
 	}
-
-	if (!isAssigned(position))
-	{
-		displayMessage("Unassigned");
-	}
-	else
-	{
-		displayMessage("%lu",getVariable(position));
-	}
 }
-

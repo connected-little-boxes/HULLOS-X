@@ -199,3 +199,35 @@ unsigned long getProcIDSalt()
 #endif
 
 }
+
+bool endsWith(const char *str, const char *suffix) {
+    int lenStr = 0, lenSuffix = 0;
+
+    // Manually calculate lengths (no strlen)
+    while (str[lenStr]) lenStr++;
+    while (suffix[lenSuffix]) lenSuffix++;
+
+    // Suffix longer than string? Can't match
+    if (lenSuffix > lenStr) return false;
+
+    // Compare characters from the end
+    for (int i = 0; i < lenSuffix; i++) {
+        if (str[lenStr - lenSuffix + i] != suffix[i]) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void strip_end(char *str, int n) {
+    if (n < 0) return;  // Ignore negative n
+
+    char *p = str;
+    while (*p) p++;     // Move to the end of the string
+
+    while (n-- > 0 && p > str) {
+        --p;
+        *p = '\0';
+    }
+}

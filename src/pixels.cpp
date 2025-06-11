@@ -199,9 +199,11 @@ unsigned long millisOfLastPixelUpdate;
 
 int *rasterLookup = NULL;
 
+int noOfPixels;
+
 void startPixelStrip()
 {
-	int noOfPixels = pixelSettings.noOfXPixels * pixelSettings.noOfYPixels;
+	noOfPixels = pixelSettings.noOfXPixels * pixelSettings.noOfYPixels;
 
 	if (noOfPixels == 0)
 	{
@@ -1019,6 +1021,92 @@ void resetStatusDisplay()
 	}
 }
 
+void setAllLightsOff()
+{
+	frame->fadeSpritesToWalkingColours("K", 10);
+}
+
+// Pixel position for busy display
+byte pixelPos = 0;
+byte busyRed, busyGreen, busyBlue;
+
+void updateBusyPixel()
+{
+	strip->fill(0,0,0);
+
+	strip->setPixelColor(rasterLookup[pixelPos], 0, 0, 0);
+
+	pixelPos++;
+
+	if (pixelPos == noOfPixels)
+		pixelPos = 0;
+
+	strip->setPixelColor(rasterLookup[pixelPos], busyRed, busyGreen, busyBlue);
+
+	strip->show();
+}
+
+void setBusyPixelColour(byte red, byte green, byte blue)
+{
+	busyRed = red;
+	busyBlue = blue;
+	busyGreen = green;
+}
+
+void startBusyPixel(byte red, byte green, byte blue)
+{
+	switch (pixelProcess.status)
+	{
+	case PIXEL_NO_PIXELS:
+		return;
+	case PIXEL_OK:
+		setBusyPixelColour(red, green, blue);
+		pixelProcess.status = PIXELS_BUSY;
+		pixelPos = 0;
+		updateBusyPixel();
+		break;
+	case PIXEL_OFF:
+		return;
+	case PIXELS_STATUS_ONLY:
+		return;
+	case PIXELS_BUSY:
+		return;
+	default:
+		return;
+	}
+}
+
+void stopBusyPixel()
+{
+	switch (pixelProcess.status)
+	{
+	case PIXEL_NO_PIXELS:
+		return;
+	case PIXEL_OK:
+		return;
+	case PIXEL_OFF:
+		return;
+	case PIXELS_STATUS_ONLY:
+		return;
+	case PIXELS_BUSY:
+		pixelProcess.status=PIXEL_OK;
+		return;
+	default:
+		return;
+	}
+}
+
+void displayBusyPixelWait(int ticks, int onTime, byte red, byte green, byte blue)
+{
+	startBusyPixel(red, green, blue);
+	for (int i = 0; i < ticks; i++)
+	{
+		updateBusyPixel();
+		delay(onTime);
+	}
+	stopBusyPixel();
+}
+
 void beginStatusDisplay(Colour c)
 {
 	startPixelStrip();
@@ -1087,7 +1175,7 @@ void initPixel()
 {
 	pixelProcess.status = PIXEL_OFF;
 
-	int noOfPixels = pixelSettings.noOfXPixels * pixelSettings.noOfYPixels;
+	noOfPixels = pixelSettings.noOfXPixels * pixelSettings.noOfYPixels;
 
 	if (noOfPixels == 0)
 	{
@@ -1122,6 +1210,41 @@ void startPixel()
 	frame->fadeToBrightness(pixelSettings.brightness, 10);
 }
 
+void flickeringColouredLights(byte r, byte g, byte b,int steps){
+	frame->fadeToColour({(float)r/256, (float)g/256, (float)b/256}, steps);
+}
+
+void setFlickerUpdateSpeed(int speed)
+{
+
+}
+
+void transitionToColor(byte speed, byte r, byte g, byte b)
+{
+
+}
+
+void setLightColor(byte r, byte g, byte b)
+{
+
+}
+
+void randomiseLights()
+{
+
+}
+
+void flickerOn()
+{
+
+}
+
+void flickerOff()
+{
+	
+}
+
+
 void showDeviceStatus();	   // declared in control.h
 boolean getInputSwitchValue(); // declared in inputswitch.h
 
@@ -1150,6 +1273,8 @@ void updatePixel()
 	case PIXEL_OFF:
 		return;
 	case PIXELS_STATUS_ONLY:
+		return;
+	case PIXELS_BUSY:
 		return;
 	default:
 		break;
@@ -1181,6 +1306,9 @@ void pixelStatusMessage(char *buffer, int bufferLength)
 		break;
 	case PIXELS_STATUS_ONLY:
 		snprintf(buffer, bufferLength, "PIXELS status only");
+		break;
+	case PIXELS_BUSY:
+		snprintf(buffer, bufferLength, "PIXEL busy display");
 		break;
 	default:
 		snprintf(buffer, bufferLength, "Pixel status invalid");

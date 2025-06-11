@@ -72,6 +72,12 @@ bool commandsNeedFullSpeed()
     return deviceState != EXECUTE_IMMEDIATELY;
 }
 
+void processHullOSSerialByte(uint8_t b)
+{
+
+}
+
+
 void updateHullOS()
 {
     // If we recieve serial data the program that is running

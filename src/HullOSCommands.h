@@ -12,12 +12,19 @@
 #define ECHO_DOWNLOADS 4
 #define DUMP_DOWNLOADS 8
 
+#define EEPROM_SIZE 1000
+
+extern unsigned charprogram_source [EEPROM_SIZE] ;
+
+unsigned char readByteFromEEPROM();
+
 enum ProgramState
 {
 	PROGRAM_STOPPED,
 	PROGRAM_PAUSED,
 	PROGRAM_ACTIVE,
-	PROGRAM_AWAITING_DELAY_COMPLETION
+	PROGRAM_AWAITING_DELAY_COMPLETION,
+	PROGRAM_AWAITING_MOVE_COMPLETION
 };
 
 enum DeviceState

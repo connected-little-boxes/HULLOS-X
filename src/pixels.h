@@ -13,6 +13,7 @@
 #define PIXEL_NO_PIXELS 102
 #define PIXELS_STATUS_ONLY 103
 #define PIXELS_AND_STATUS 104
+#define PIXELS_BUSY 105
 
 #include <Adafruit_NeoPixel.h>
 
@@ -41,6 +42,7 @@ void addStatusItem(PixelStatusLevels status);
 void beginStatusDisplay(Colour colour);
 void renderStatusDisplay();
 void setupWalkingColour(Colour colour);
+void setAllLightsOff();
 
 void pixelStatusMessage(struct process * pixelProcess, char * buffer, int bufferLength);
 
@@ -67,3 +69,27 @@ extern struct process pixelProcess;
 
 void fadeWalkingColour(Colour newColour, int noOfSteps);
 struct colourNameLookup * findColourByName(const char * name);
+
+void updateBusyPixel();
+
+void startBusyPixel(byte red, byte green, byte blue);
+
+void setBusyPixelColour(byte red, byte green, byte blue);
+
+void stopBusyPixel();
+
+void flickeringColouredLights(byte r, byte g, byte b);
+
+void setFlickerUpdateSpeed(int speed);
+
+void transitionToColor(byte speed, byte r, byte g, byte b);
+
+void setLightColor(byte r, byte g, byte b);
+
+void randomiseLights();
+
+void flickerOn();
+
+void flickerOff();
+
+

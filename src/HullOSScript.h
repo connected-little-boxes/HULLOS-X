@@ -1,39 +1,63 @@
-#pragma once
+#ifndef SCRIPT_INCLUDED
 
-//#define SCRIPT_DEBUG
-
-// Commands are separated by a # character. Always lower case
-// stuff.
-
-#define COMMAND_DELAY 1
-#define COMMAND_SET 2
-#define COMMAND_IF 3
-#define COMMAND_DO 4
-#define COMMAND_WHILE 5
-#define COMMAND_ENDIF 6
-#define COMMAND_FOREVER 7
-#define COMMAND_ENDWHILE 8
-#define COMMAND_UNTIL 9
-#define COMMAND_CLEAR 10
-#define COMMAND_RUN 11
-#define COMMAND_ELSE 12
-#define COMMAND_WAIT 13
-#define COMMAND_STOP 14
-#define COMMAND_BEGIN 15
-#define COMMAND_END 16
-#define COMMAND_PRINT 17
-#define COMMAND_PRINTLN 18
-#define COMMAND_BREAK 19
-#define COMMAND_CONTINUE 20
-#define COMMAND_SYSTEM_COMMAND 21
-#define COMMAND_EMPTY_LINE 101
+#define SCRIPT_INCLUDED
 
 #define ERROR_OK 0
+
+#define COMMAND_ANGRY 0
+#define COMMAND_HAPPY 1
+#define COMMAND_MOVE 2
+#define COMMAND_TURN 3
+#define COMMAND_ARC 4
+#define COMMAND_DELAY 5
+#define COMMAND_COLOUR 6
+#define COMMAND_COLOR 7
+#define COMMAND_PIXEL 8
+#define COMMAND_SET 9
+#define COMMAND_IF 10
+#define COMMAND_DO 11
+#define COMMAND_WHILE 12
+#define COMMAND_INTIME 13
+#define COMMAND_ENDIF 14
+#define COMMAND_FOREVER 15
+#define COMMAND_ENDWHILE 16
+#define COMMAND_SOUND 17
+#define COMMAND_UNTIL 18
+#define COMMAND_CLEAR 19
+#define COMMAND_RUN 20
+#define COMMAND_BACKGROUND 21
+#define COMMAND_ELSE 22
+#define COMMAND_RED 23
+#define COMMAND_GREEN 24
+#define COMMAND_BLUE 25
+#define COMMAND_YELLOW 26
+#define COMMAND_MAGENTA 27
+#define COMMAND_CYAN 28
+#define COMMAND_WHITE 29
+#define COMMAND_BLACK 30
+#define COMMAND_WAIT 31
+#define COMMAND_STOP 32
+#define COMMAND_BEGIN 33
+#define COMMAND_END 34
+#define COMMAND_PRINT 35
+#define COMMAND_PRINTLN 36
+#define COMMAND_BREAK 37
+#define COMMAND_DURATION 38
+#define COMMAND_CONTINUE 39
+#define COMMAND_ANGLE 40
+#define COMMAND_DANCE 41
+#define COMMON_VARIABLE 42
+
+#define SCRIPT_INPUT_BUFFER_LENGTH 80
+#define COMMAND_NAME_TERMINATOR '#'
+#define COMMAND_ALIAS_SEPARATOR ','
+#define STATEMENT_TERMINATOR 0x0D
+
 #define ERROR_MISSING_TIME_VALUE_IN_INTIME 1
 #define ERROR_INVALID_INTIME 2
 #define ERROR_MISSING_MOVE_DISTANCE 3
 #define ERROR_NOT_IMPLEMENTED 4
-#define ERROR_MISSING_SINGLE_VALUE 5
+#define ERROR_MISSING_ANGLE_IN_TURN 5
 #define ERROR_INVAILD_ANGLE_SEPARATOR_IN_ARC 6
 #define VARIABLE_USED_BEFORE_IT_WAS_CREATED 7
 #define ERROR_INVALID_DIGIT_IN_NUMBER 8
@@ -87,12 +111,24 @@
 #define ERROR_NO_LABEL_FOR_LOOP_ON_STACK_IN_CONTINUE 56
 #define ERROR_NO_RADIUS_IN_ARC 57
 #define ERROR_NO_ANGLE_IN_ARC 58
+#define ERROR_NO_COMMAND_START_CHAR 59
+#define ERROR_INVALID_VARIABLE_NAME_IN_SET_COMMON_VARIABLE 60
+#define ERROR_NO_ASSIGNMENT_NAME_IN_SET 61
+#define ERROR_TOKEN_TOO_LARGE 62
+#define ERROR_EMPTY_TOKEN 63
+#define ERROR_MISSING_VARIABLE_IN_SIMPLE_ASSIGNMENT 64
 
-extern const char commandNames[];
 
-#define SCRIPT_INPUT_BUFFER_LENGTH 80
+#define COMMAND_SYSTEM_COMMAND 100
+#define COMMAND_EMPTY_LINE 101
 
-extern char scriptInputBuffer[];
+void printError(int code);
+
+extern char scriptInputBuffer[SCRIPT_INPUT_BUFFER_LENGTH];
+
+extern int scriptInputBufferPos;
+
+extern char scriptInputBuffer[SCRIPT_INPUT_BUFFER_LENGTH];
 
 extern int scriptInputBufferPos;
 
@@ -110,21 +146,20 @@ extern bool programError;
 
 extern bool compilingProgram;
 
-
 // The start position of the command in the input buffer
 // Set by decodeCommand
 // Shared with all the functions below
-extern char * commandStartPos;
+extern char *commandStartPos;
 
 // THIS MEANS THAT THIS COMPILER IS NOT REENTRANT
 
-// The position in the input buffer 
+// The position in the input buffer
 // Set to the start of the command buffer by decodeScriptLine
 // Shared with all the functions below and updated by them
 
 // THIS MEANS THAT THIS COMPILER IS NOT REENTRANT
 
-extern char * bufferPos;
+extern char *bufferPos;
 
 // The position in the command names
 // Set to the start of the command names by decodeScriptLine
@@ -140,7 +175,7 @@ extern int scriptCommandPos;
 
 // THIS ALSO MEANS THAT THIS COMPILER IS NOT REENTRANT
 
-extern uint8_t currentIndentLevel;
+extern int currentIndentLevel;
 
 // True if the previous statement started a block
 // This statement is allowed to set a new indent level
@@ -150,23 +185,15 @@ extern bool previousStatementStartedBlock;
 
 extern bool displayErrors;
 
-// The function to be used to send out comipiled bytes. 
+// The function to be used to send out compiled bytes.
 // Set at the start of the line by decodeScriptLine
 // Shared with all the functions below
 
 // YET ANOTHER REASON THAT THIS COMPILER IS NOT REENTRANT
 
-extern void(*outputFunction) (uint8_t);
+extern void (*outputFunction)(unsigned char);
 
-#define COMMAND_NAME_TERMINATOR '#'
-#define STATEMENT_TERMINATOR 0x0D
-
-bool spinToCommandEnd();
-
-uint8_t skipInputSpaces();
-
-void writeBytesFromBuffer(int length);
-void writeMatchingStringFromBuffer(char * string);
+void resetScriptLine();
 
 enum ScriptCompareCommandResult
 {
@@ -175,7 +202,34 @@ enum ScriptCompareCommandResult
 	COMMAND_NOT_MATCHED
 };
 
-#define DUMP_BUFFER_SIZE 20
-#define DUMP_BUFFER_LIMIT DUMP_BUFFER_SIZE-1
+int skipInputSpaces();
+bool spinToNextCommandAlias(const char * commandNames);
+bool spinToCommandEnd(const char * commandNames);
+int decodeCommandName(const char * commandNames);
+ScriptCompareCommandResult compareCommand(const char * commandNames);
+void writeBytesFromBuffer(int length);
+void writeMatchingStringFromBuffer(char *string);
+int processSingleValue();
+int processValue();
+void sendCommand(const char *command);
+void endCommand();
+void abandonCompilation();
 
-int decodeScriptChar(char b, void(*output) (unsigned char));
+#ifdef SCRIPT_DEBUG
+
+#define DUMP_BUFFER_SIZE 20
+#define DUMP_BUFFER_LIMIT DUMP_BUFFER_SIZE - 1
+
+extern char dumpBuffer[DUMP_BUFFER_SIZE];
+
+extern int dumpBufferPos = 0;
+
+boolean addDumpByte(byte b);
+
+void displayDump();
+
+void dumpByte(byte b);
+
+#endif
+
+#endif

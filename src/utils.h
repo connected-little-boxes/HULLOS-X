@@ -79,3 +79,10 @@ unsigned long getProcIDSalt ();
 #if !defined(WEMOSD1MINI) && !defined(ESP32DOIT)
 #define IRAM_ATTR 
 #endif
+
+extern const char * version;
+
+bool endsWith(const char *str, const char *suffix);
+
+void strip_end(char *str, int n);
+
